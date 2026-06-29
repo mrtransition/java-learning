@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>日志与配置管理 — Java 入门教程</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <a href="../index.html"><span class="logo-icon">☕</span> Java 教程</a>
+  </div>
+  <ul class="sidebar-nav">
+    <li><a href="../index.html">🏠 首页</a></li>
+    <li class="nav-section">基础入门</li>
+    <li><a href="basics.html">变量与数据类型</a></li>
+    <li><a href="control-flow.html">流程控制</a></li>
+    <li><a href="oop.html">类与对象</a></li>
+    <li><a href="exceptions.html">异常处理</a></li>
+    <li><a href="generics.html">泛型</a></li>
+    <li class="nav-section">进阶提高</li>
+    <li><a href="collections.html">集合框架</a></li>
+    <li><a href="datetime.html">日期与时间</a></li>
+    <li><a href="streams.html">Lambda 与 Stream</a></li>
+    <li><a href="concurrency.html">多线程与并发</a></li>
+    <li><a href="advanced.html">注解 / IO / 反射</a></li>
+    <li class="nav-section">高阶实战</li>
+    <li><a href="maven.html">Maven 构建</a></li>
+    <li><a href="springboot.html">Spring Boot</a></li>
+    <li><a href="database.html">数据库访问</a></li>
+    <li><a href="restapi.html">REST API</a></li>
+    <li><a href="testing.html">单元测试</a></li>
+    <li><a href="logging.html" class="active">日志与配置</a></li>
+  </ul>
+</aside>
+
+<main class="main">
+  <h1><span class="emoji">📋</span> 日志与配置管理</h1>
+
+  <p>日志和配置管理是生产环境的基石。好的日志策略能让你在出现问题时快速定位根因。</p>
+
+  <h2>SLF4J + Logback — 标准日志方案</h2>
+  <p>SLF4J 是日志门面，Logback 是 Spring Boot 默认的日志实现。</p>
+
+  <pre><span class="code-keyword">import</span> org.slf4j.Logger;
+<span class="code-keyword">import</span> org.slf4j.LoggerFactory;
+
+<span class="code-keyword">public class</span> <span class="code-type">OrderService</span> {
+    <span class="code-keyword">private static final</span> Logger log = LoggerFactory.getLogger(OrderService.class);
+
+    <span class="code-keyword">public</span> Order createOrder(OrderRequest req) {
+        log.info(<span class="code-string">"开始创建订单: userId={}, amount={}"</span>, req.getUserId(), req.getAmount());
+        <span class="code-keyword">try</span> {
+            Order order = orderRepository.save(toEntity(req));
+            log.info(<span class="code-string">"订单创建成功: orderId={}"</span>, order.getId());
+            <span class="code-keyword">return</span> order;
+        } <span class="code-keyword">catch</span> (Exception e) {
+            log.error(<span class="code-string">"订单创建失败: userId={}"</span>, req.getUserId(), e);
+            <span class="code-keyword">throw new</span> OrderCreateException(<span class="code-string">"创建订单异常"</span>, e);
+        }
+    }
+}</pre>
+
+  <h2>日志级别</h2>
+
+  <table>
+    <tr><th>级别</th><th>用途</th></tr>
+    <tr><td><code>ERROR</code></td><td>系统错误，需要立即处理（数据库断开、服务不可用）</td></tr>
+    <tr><td><code>WARN</code></td><td>潜在问题，不影响运行但需要注意（配置回退、重试）</td></tr>
+    <tr><td><code>INFO</code></td><td>关键业务节点记录（订单创建、用户注册、支付完成）</td></tr>
+    <tr><td><code>DEBUG</code></td><td>开发调试信息，生产环境一般关闭</td></tr>
+    <tr><td><code>TRACE</code></td><td>详细跟踪信息，仅用于深度排查</td></tr>
+  </table>
+
+  <h2>logback-spring.xml</h2>
+
+  <pre><span class="code-comment">&lt;!-- src/main/resources/logback-spring.xml --&gt;</span>
+&lt;configuration&gt;
+    <span class="code-comment">&lt;!-- 控制台输出 --&gt;</span>
+    &lt;appender name=<span class="code-string">"CONSOLE"</span> class=<span class="code-string">"ch.qos.logback.core.ConsoleAppender"</span>&gt;
+        &lt;encoder&gt;
+            &lt;pattern&gt;%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n&lt;/pattern&gt;
+        &lt;/encoder&gt;
+    &lt;/appender&gt;
+
+    <span class="code-comment">&lt;!-- 文件输出 — 按天滚动 --&gt;</span>
+    &lt;appender name=<span class="code-string">"FILE"</span> class=<span class="code-string">"ch.qos.logback.core.rolling.RollingFileAppender"</span>&gt;
+        &lt;file&gt;logs/app.log&lt;/file&gt;
+        &lt;rollingPolicy class=<span class="code-string">"ch.qos.logback.core.rolling.TimeBasedRollingPolicy"</span>&gt;
+            &lt;fileNamePattern&gt;logs/app.%d{yyyy-MM-dd}.log&lt;/fileNamePattern&gt;
+            &lt;maxHistory&gt;30&lt;/maxHistory&gt;
+        &lt;/rollingPolicy&gt;
+        &lt;encoder&gt;
+            &lt;pattern&gt;%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n&lt;/pattern&gt;
+        &lt;/encoder&gt;
+    &lt;/appender&gt;
+
+    <span class="code-comment">&lt;!-- 错误日志单独输出 --&gt;</span>
+    &lt;appender name=<span class="code-string">"ERROR_FILE"</span> class=<span class="code-string">"ch.qos.logback.core.rolling.RollingFileAppender"</span>&gt;
+        &lt;file&gt;logs/error.log&lt;/file&gt;
+        &lt;filter class=<span class="code-string">"ch.qos.logback.classic.filter.ThresholdFilter"</span>&gt;
+            &lt;level&gt;ERROR&lt;/level&gt;
+        &lt;/filter&gt;
+        &lt;rollingPolicy class=<span class="code-string">"ch.qos.logback.core.rolling.TimeBasedRollingPolicy"</span>&gt;
+            &lt;fileNamePattern&gt;logs/error.%d{yyyy-MM-dd}.log&lt;/fileNamePattern&gt;
+            &lt;maxHistory&gt;90&lt;/maxHistory&gt;
+        &lt;/rollingPolicy&gt;
+        &lt;encoder&gt;
+            &lt;pattern&gt;%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n&lt;/pattern&gt;
+        &lt;/encoder&gt;
+    &lt;/appender&gt;
+
+    <span class="code-comment">&lt;!-- 按包名设置级别 --&gt;</span>
+    &lt;logger name=<span class="code-string">"com.example"</span> level=<span class="code-string">"DEBUG"</span>/&gt;
+    &lt;logger name=<span class="code-string">"org.springframework"</span> level=<span class="code-string">"WARN"</span>/&gt;
+
+    &lt;root level=<span class="code-string">"INFO"</span>&gt;
+        &lt;appender-ref ref=<span class="code-string">"CONSOLE"</span>/&gt;
+        &lt;appender-ref ref=<span class="code-string">"FILE"</span>/&gt;
+        &lt;appender-ref ref=<span class="code-string">"ERROR_FILE"</span>/&gt;
+    &lt;/root&gt;
+&lt;/configuration&gt;</pre>
+
+  <h2>多环境配置</h2>
+
+  <pre><span class="code-comment">// application.yml — 公共配置</span>
+server:
+  port: 8080
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: none   <span class="code-comment"># 生产环境用 Flyway 管理</span>
+
+---
+<span class="code-comment">// application-dev.yml — 开发环境</span>
+spring:
+  devtools:
+    restart:
+      enabled: true
+  datasource:
+    url: jdbc:h2:mem:testdb
+  jpa:
+    show-sql: true
+logging:
+  level:
+    com.example: DEBUG
+
+---
+<span class="code-comment">// application-prod.yml — 生产环境</span>
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASS}
+  jpa:
+    show-sql: false
+logging:
+  level:
+    com.example: WARN</pre>
+
+  <h2>配置优先级（从高到低）</h2>
+  <ol>
+    <li>命令行参数：<code>--server.port=8081</code></li>
+    <li>环境变量：<code>JAVA_HOME</code>、<code>SPRING_PROFILES_ACTIVE=prod</code></li>
+    <li>应用级 <code>application-{profile}.yml</code></li>
+    <li><code>application.yml</code> 默认配置</li>
+  </ol>
+
+  <h2>@ConfigurationProperties — 类型安全配置</h2>
+
+  <pre><span class="code-comment">// application.yml</span>
+app:
+  oss:
+    endpoint: https://oss-cn-hangzhou.aliyuncs.com
+    access-key: ${OSS_ACCESS_KEY}
+    secret-key: ${OSS_SECRET_KEY}
+    bucket: my-app-files
+
+<span class="code-comment">// 配置绑定类</span>
+<span class="code-meta">@ConfigurationProperties</span>(prefix = <span class="code-string">"app.oss"</span>)
+<span class="code-keyword">public class</span> <span class="code-type">OssProperties</span> {
+    <span class="code-keyword">private</span> String endpoint;
+    <span class="code-keyword">private</span> String accessKey;
+    <span class="code-keyword">private</span> String secretKey;
+    <span class="code-keyword">private</span> String bucket;
+    <span class="code-comment">// getter / setter</span>
+}
+
+<span class="code-comment">// 在配置类启用</span>
+<span class="code-meta">@Configuration</span>
+<span class="code-meta">@EnableConfigurationProperties</span>(OssProperties.class)
+<span class="code-keyword">public class</span> <span class="code-type">AppConfig</span> { }</pre>
+
+  <h2>Actuator — 生产监控</h2>
+
+  <pre><span class="code-comment">// pom.xml</span>
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-actuator&lt;/artifactId&gt;
+&lt;/dependency&gt;
+
+<span class="code-comment">// application.yml 暴露端点</span>
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,env,loggers
+  endpoint:
+    health:
+      show-details: when-authorized
+
+<span class="code-comment">// 访问：GET /actuator/health → 健康检查</span>
+<span class="code-comment">// GET /actuator/info → 应用信息</span>
+<span class="code-comment">// GET /actuator/metrics → 性能指标</span>
+<span class="code-comment">// POST /actuator/loggers/com.example → 动态调整日志级别</span></pre>
+
+  <div class="info-box">
+    <strong>💡 日志最佳实践</strong>
+    <ul>
+      <li>使用占位符 <code>log.info("user={}", id)</code> 而非字符串拼接</li>
+      <li>异常日志传入完整异常对象：<code>log.error("消息", exception)</code></li>
+      <li>日志中记录业务追踪 ID（traceId）方便关联请求</li>
+      <li>不要记录密码、身份证号等敏感信息</li>
+      <li>设置合理的日志保留策略（按磁盘空间和时间）</li>
+    </ul>
+  </div>
+
+  <div class="page-nav">
+    <a href="testing.html">← 单元测试</a>
+    <a href="../index.html">🏠 返回首页</a>
+  </div>
+</main>
+
+<script src="../js/main.js"></script>
+</body>
+</html>

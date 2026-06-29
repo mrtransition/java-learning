@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lambda 与 Stream API — Java 入门教程</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <a href="../index.html"><span class="logo-icon">☕</span> Java 教程</a>
+  </div>
+  <ul class="sidebar-nav">
+    <li><a href="../index.html">🏠 首页</a></li>
+    <li class="nav-section">基础入门</li>
+    <li><a href="basics.html">变量与数据类型</a></li>
+    <li><a href="control-flow.html">流程控制</a></li>
+    <li><a href="oop.html">类与对象</a></li>
+    <li><a href="exceptions.html">异常处理</a></li>
+    <li><a href="generics.html">泛型</a></li>
+    <li class="nav-section">进阶提高</li>
+    <li><a href="collections.html">集合框架</a></li>
+    <li><a href="datetime.html">日期与时间</a></li>
+    <li><a href="streams.html" class="active">Lambda 与 Stream</a></li>
+    <li><a href="concurrency.html">多线程与并发</a></li>
+    <li><a href="advanced.html">注解 / IO / 反射</a></li>
+    <li class="nav-section">高阶实战</li>
+    <li><a href="maven.html">Maven 构建</a></li>
+    <li><a href="springboot.html">Spring Boot</a></li>
+    <li><a href="database.html">数据库访问</a></li>
+    <li><a href="restapi.html">REST API</a></li>
+    <li><a href="testing.html">单元测试</a></li>
+    <li><a href="logging.html">日志与配置</a></li>
+  </ul>
+</aside>
+
+<main class="main">
+  <h1><span class="emoji">🌊</span> Lambda 与 Stream API</h1>
+
+  <h2>Lambda 表达式</h2>
+  <p>Lambda 提供简洁的匿名函数语法，核心格式：<code>(参数) -> 表达式</code></p>
+
+  <pre><span class="code-comment">// 传统匿名内部类</span>
+Runnable r1 = <span class="code-keyword">new</span> Runnable() {
+    <span class="code-meta">@Override</span>
+    <span class="code-keyword">public void</span> run() {
+        System.out.println(<span class="code-string">"Hello"</span>);
+    }
+};
+
+<span class="code-comment">// Lambda 等价写法</span>
+Runnable r2 = () -> System.out.println(<span class="code-string">"Hello"</span>);
+
+<span class="code-comment">// 带参数的 Lambda</span>
+Comparator&lt;String&gt; cmp = (a, b) -> a.length() - b.length();
+
+List&lt;String&gt; names = Arrays.asList(<span class="code-string">"Java"</span>, <span class="code-string">"Python"</span>, <span class="code-string">"C"</span>);
+names.sort((a, b) -> Integer.compare(a.length(), b.length()));
+System.out.println(names);  <span class="code-comment">// [C, Java, Python]</span></pre>
+
+  <h2>函数式接口</h2>
+  <p>Lambda 配合函数式接口（只有一个抽象方法）使用：</p>
+
+  <table>
+    <tr><th>接口</th><th>输入</th><th>输出</th><th>示例</th></tr>
+    <tr><td>Predicate&lt;T&gt;</td><td>T</td><td>boolean</td><td><code>s -> s.isEmpty()</code></td></tr>
+    <tr><td>Function&lt;T,R&gt;</td><td>T</td><td>R</td><td><code>s -> s.length()</code></td></tr>
+    <tr><td>Consumer&lt;T&gt;</td><td>T</td><td>void</td><td><code>x -> System.out.println(x)</code></td></tr>
+    <tr><td>Supplier&lt;T&gt;</td><td>无</td><td>T</td><td><code>() -> Math.random()</code></td></tr>
+  </table>
+
+  <pre><span class="code-comment">// 自定义函数式接口</span>
+<span class="code-meta">@FunctionalInterface</span>
+<span class="code-keyword">interface</span> <span class="code-type">Calculator</span> {
+    <span class="code-keyword">int</span> calculate(<span class="code-keyword">int</span> x, <span class="code-keyword">int</span> y);
+}
+
+Calculator add = (a, b) -> a + b;
+Calculator multiply = (a, b) -> a * b;
+
+System.out.println(add.calculate(3, 4));       <span class="code-comment">// 7</span>
+System.out.println(multiply.calculate(3, 4));  <span class="code-comment">// 12</span></pre>
+
+  <h2>Stream API</h2>
+  <p>Stream 用于对集合进行声明式处理（过滤、映射、归约等）。</p>
+
+  <h3>创建 Stream</h3>
+
+  <pre>List&lt;String&gt; items = Arrays.asList(<span class="code-string">"apple"</span>, <span class="code-string">"banana"</span>, <span class="code-string">"cherry"</span>);
+<span class="code-comment">// List.of(...) (Java 9+) 可替代 Arrays.asList</span>
+
+<span class="code-comment">// 从集合创建</span>
+Stream&lt;String&gt; stream1 = items.stream();
+
+<span class="code-comment">// 从数组创建</span>
+Stream&lt;Integer&gt; stream2 = Arrays.stream(<span class="code-keyword">new</span> Integer[]{1, 2, 3});
+
+<span class="code-comment">// 直接创建</span>
+Stream&lt;String&gt; stream3 = Stream.of(<span class="code-string">"a"</span>, <span class="code-string">"b"</span>, <span class="code-string">"c"</span>);
+
+<span class="code-comment">// 无限流</span>
+Stream&lt;Double&gt; randoms = Stream.generate(Math::random);
+Stream&lt;Integer&gt; natural = Stream.iterate(0, n -> n + 1);</pre>
+
+  <h3>中间操作（返回新 Stream）</h3>
+
+  <pre>List&lt;Integer&gt; numbers = Arrays.asList(1, 2, 3, 4, 5, 6);
+
+List&lt;Integer&gt; result = numbers.stream()
+    .filter(n -> n % 2 == 0)           <span class="code-comment">// 过滤偶数: [2, 4, 6]</span>
+    .map(n -> n * n)                    <span class="code-comment">// 平方: [4, 16, 36]</span>
+    .sorted((a, b) -> b - a)           <span class="code-comment">// 降序: [36, 16, 4]</span>
+    .limit(2)                           <span class="code-comment">// 取前2: [36, 16]</span>
+    .collect(Collectors.toList());
+
+System.out.println(result);  <span class="code-comment">// [36, 16]</span></pre>
+
+  <h3>终端操作</h3>
+
+  <pre>List&lt;String&gt; words = Arrays.asList(<span class="code-string">"hello"</span>, <span class="code-string">"world"</span>, <span class="code-string">"java"</span>);
+
+<span class="code-comment">// forEach — 遍历</span>
+words.stream().forEach(System.out::println);
+
+<span class="code-comment">// collect — 收集到集合</span>
+List&lt;String&gt; upper = words.stream()
+    .map(String::toUpperCase)
+    .collect(Collectors.toList());     <span class="code-comment">// [HELLO, WORLD, JAVA]</span>
+
+<span class="code-comment">// reduce — 归约</span>
+<span class="code-keyword">int</span> sum = Arrays.asList(1, 2, 3, 4).stream()
+    .reduce(0, Integer::sum);          <span class="code-comment">// 10</span>
+
+<span class="code-comment">// 统计</span>
+<span class="code-keyword">long</span> count = words.stream()
+    .filter(s -> s.length() &gt; 3)
+    .count();                          <span class="code-comment">// 3</span>
+
+<span class="code-keyword">boolean</span> any = words.stream()
+    .anyMatch(s -> s.startsWith(<span class="code-string">"h"</span>));  <span class="code-comment">// true</span></pre>
+
+  <h2>Optional</h2>
+  <p>Optional 用于优雅处理可能为 null 的值，避免 NullPointerException：</p>
+
+  <pre><span class="code-comment">// 创建</span>
+Optional&lt;String&gt; empty = Optional.empty();
+Optional&lt;String&gt; present = Optional.of(<span class="code-string">"hello"</span>);
+Optional&lt;String&gt; nullable = Optional.ofNullable(mightBeNull);
+
+<span class="code-comment">// 安全使用</span>
+String result = present
+    .map(String::toUpperCase)
+    .filter(s -> s.length() &gt; 2)
+    .orElse(<span class="code-string">"default"</span>);          <span class="code-comment">// "HELLO"</span>
+
+<span class="code-comment">// 链式调用</span>
+String name = findUser(userId)
+    .flatMap(User::getMiddleName)
+    .orElseThrow(() -> <span class="code-keyword">new</span> NoSuchElementException(<span class="code-string">"无中间名"</span>));</pre>
+
+  <div class="info-box warn">
+    <strong>⚠️ 注意</strong>
+    <ul>
+      <li>Stream 是惰性的——没有终端操作时中间操作不会执行</li>
+      <li>Stream 只能消费一次，重复使用会抛异常</li>
+      <li>避免在 Lambda 中修改外部变量——变量应实际上是 final 的</li>
+    </ul>
+  </div>
+
+  <div class="page-nav">
+    <a href="datetime.html">← 日期与时间</a>
+    <a href="concurrency.html">多线程与并发 →</a>
+  </div>
+</main>
+
+<script src="../js/main.js"></script>
+</body>
+</html>

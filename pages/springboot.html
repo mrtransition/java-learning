@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Spring Boot — Java 入门教程</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <a href="../index.html"><span class="logo-icon">☕</span> Java 教程</a>
+  </div>
+  <ul class="sidebar-nav">
+    <li><a href="../index.html">🏠 首页</a></li>
+    <li class="nav-section">基础入门</li>
+    <li><a href="basics.html">变量与数据类型</a></li>
+    <li><a href="control-flow.html">流程控制</a></li>
+    <li><a href="oop.html">类与对象</a></li>
+    <li><a href="exceptions.html">异常处理</a></li>
+    <li><a href="generics.html">泛型</a></li>
+    <li class="nav-section">进阶提高</li>
+    <li><a href="collections.html">集合框架</a></li>
+    <li><a href="datetime.html">日期与时间</a></li>
+    <li><a href="streams.html">Lambda 与 Stream</a></li>
+    <li><a href="concurrency.html">多线程与并发</a></li>
+    <li><a href="advanced.html">注解 / IO / 反射</a></li>
+    <li class="nav-section">高阶实战</li>
+    <li><a href="maven.html">Maven 构建</a></li>
+    <li><a href="springboot.html" class="active">Spring Boot</a></li>
+    <li><a href="database.html">数据库访问</a></li>
+    <li><a href="restapi.html">REST API</a></li>
+    <li><a href="testing.html">单元测试</a></li>
+    <li><a href="logging.html">日志与配置</a></li>
+  </ul>
+</aside>
+
+<main class="main">
+  <h1><span class="emoji">🍃</span> Spring Boot</h1>
+
+  <p>Spring Boot 是当前 Java 企业开发的事实标准，通过自动配置大幅简化了 Spring 应用的搭建。</p>
+
+  <div class="info-box warn">
+    <strong>⚠️ 版本说明</strong> 本教程示例基于 <strong>Spring Boot 2.x</strong>（兼容 Java 8）。Spring Boot 3.x <span class="version-badge java11">Java 17+</span> 需升级到 JDK 17，请注意区别。
+  </div>
+
+  <h2>项目初始化</h2>
+
+  <pre><span class="code-comment">// 启动类 — 入口点</span>
+<span class="code-keyword">import</span> org.springframework.boot.SpringApplication;
+<span class="code-keyword">import</span> org.springframework.boot.autoconfigure.SpringBootApplication;
+
+<span class="code-meta">@SpringBootApplication</span>
+<span class="code-keyword">public class</span> <span class="code-type">Application</span> {
+    <span class="code-keyword">public static void</span> main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+}</pre>
+
+  <p><code>@SpringBootApplication</code> 是一个组合注解，等价于：</p>
+  <ul>
+    <li><code>@Configuration</code> — 声明配置类</li>
+    <li><code>@EnableAutoConfiguration</code> — 启用自动配置</li>
+    <li><code>@ComponentScan</code> — 扫描当前包及其子包的组件</li>
+  </ul>
+
+  <h2>Starter 依赖</h2>
+  <p>Spring Boot 提供预配置的 Starter 依赖，开箱即用：</p>
+
+  <table>
+    <tr><th>Starter</th><th>用途</th></tr>
+    <tr><td>spring-boot-starter-web</td><td>构建 REST API（内嵌 Tomcat）</td></tr>
+    <tr><td>spring-boot-starter-data-jpa</td><td>JPA + Hibernate 数据库访问</td></tr>
+    <tr><td>spring-boot-starter-validation</td><td>Bean Validation (Hibernate Validator)</td></tr>
+    <tr><td>spring-boot-starter-test</td><td>JUnit 5 + Mockito + MockMvc</td></tr>
+    <tr><td>spring-boot-starter-security</td><td>Spring Security 认证授权</td></tr>
+    <tr><td>spring-boot-starter-actuator</td><td>生产监控端点</td></tr>
+  </table>
+
+  <h2>自动配置原理</h2>
+  <p>Spring Boot 通过 <code>@Conditional</code> 系列注解实现智能自动配置：</p>
+
+  <pre><span class="code-comment">// 只有当 classpath 中存在某个类时，配置才生效</span>
+<span class="code-meta">@Configuration</span>
+<span class="code-meta">@ConditionalOnClass</span>(DataSource.class)
+<span class="code-keyword">public class</span> <span class="code-type">DataSourceAutoConfiguration</span> {
+    <span class="code-meta">@Bean</span>
+    <span class="code-meta">@ConditionalOnMissingBean</span>
+    <span class="code-keyword">public</span> DataSource dataSource() {
+        <span class="code-keyword">return new</span> HikariDataSource();
+    }
+}</pre>
+
+  <p>常用条件注解：<code>@ConditionalOnClass</code>、<code>@ConditionalOnMissingBean</code>、<code>@ConditionalOnProperty</code>、<code>@ConditionalOnExpression</code></p>
+
+  <h2>依赖注入</h2>
+
+  <pre><span class="code-meta">@Service</span>
+<span class="code-keyword">public class</span> <span class="code-type">UserService</span> {
+    <span class="code-keyword">private final</span> UserRepository userRepository;
+
+    <span class="code-comment">// 构造器注入（推荐）</span>
+    <span class="code-keyword">public</span> UserService(UserRepository userRepository) {
+        <span class="code-keyword">this</span>.userRepository = userRepository;
+    }
+}
+
+<span class="code-comment">// 多个实现时用 @Qualifier 指定</span>
+<span class="code-meta">@Service</span>
+<span class="code-keyword">public class</span> <span class="code-type">OrderService</span> {
+    <span class="code-keyword">private final</span> PaymentService paymentService;
+
+    <span class="code-keyword">public</span> OrderService(<span class="code-meta">@Qualifier</span>(<span class="code-string">"alipay"</span>) PaymentService paymentService) {
+        <span class="code-keyword">this</span>.paymentService = paymentService;
+    }
+}</pre>
+
+  <div class="info-box">
+    <strong>💡 构造器注入 vs @Autowired</strong>
+    <ul>
+      <li>构造器注入：不可变、便于测试、显式依赖——<strong>官方推荐</strong></li>
+      <li><code>@Autowired</code> 字段注入：简洁但难以测试和发现依赖</li>
+      <li>使用 <code>final</code> 字段 + 构造器注入是最佳实践</li>
+    </ul>
+  </div>
+
+  <h2>常用注解</h2>
+
+  <table>
+    <tr><th>注解</th><th>位置</th><th>说明</th></tr>
+    <tr><td>@Controller / @RestController</td><td>类</td><td>声明 Web 控制器</td></tr>
+    <tr><td>@Service</td><td>类</td><td>声明业务逻辑层</td></tr>
+    <tr><td>@Repository</td><td>类</td><td>声明数据访问层</td></tr>
+    <tr><td>@Component</td><td>类</td><td>通用 Spring Bean</td></tr>
+    <tr><td>@Configuration</td><td>类</td><td>声明配置类</td></tr>
+    <tr><td>@Bean</td><td>方法</td><td>声明一个 Bean</td></tr>
+    <tr><td>@Value("${key}")</td><td>字段/参数</td><td>注入配置文件属性</td></tr>
+    <tr><td>@ConfigurationProperties</td><td>类</td><td>绑定配置前缀到对象</td></tr>
+  </table>
+
+  <h2>application.yml vs application.properties</h2>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+    <div>
+      <p><strong>application.properties</strong></p>
+      <pre>server.port=8080
+spring.datasource.url=jdbc:h2:mem:testdb
+spring.jpa.hibernate.ddl-auto=update
+logging.level.com.example=DEBUG</pre>
+    </div>
+    <div>
+      <p><strong>application.yml</strong>（推荐）</p>
+      <pre>server:
+  port: 8080
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+  jpa:
+    hibernate:
+      ddl-auto: update
+logging:
+  level:
+    com.example: DEBUG</pre>
+    </div>
+  </div>
+
+  <div class="page-nav">
+    <a href="maven.html">← Maven 构建</a>
+    <a href="database.html">数据库访问 →</a>
+  </div>
+</main>
+
+<script src="../js/main.js"></script>
+</body>
+</html>

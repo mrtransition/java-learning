@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>泛型 — Java 入门教程</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <a href="../index.html"><span class="logo-icon">☕</span> Java 教程</a>
+  </div>
+  <ul class="sidebar-nav">
+    <li><a href="../index.html">🏠 首页</a></li>
+    <li class="nav-section">基础入门</li>
+    <li><a href="basics.html">变量与数据类型</a></li>
+    <li><a href="control-flow.html">流程控制</a></li>
+    <li><a href="oop.html">类与对象</a></li>
+    <li><a href="exceptions.html">异常处理</a></li>
+    <li><a href="generics.html" class="active">泛型</a></li>
+    <li class="nav-section">进阶提高</li>
+    <li><a href="collections.html">集合框架</a></li>
+    <li><a href="datetime.html">日期与时间</a></li>
+    <li><a href="streams.html">Lambda 与 Stream</a></li>
+    <li><a href="concurrency.html">多线程与并发</a></li>
+    <li><a href="advanced.html">注解 / IO / 反射</a></li>
+    <li class="nav-section">高阶实战</li>
+    <li><a href="maven.html">Maven 构建</a></li>
+    <li><a href="springboot.html">Spring Boot</a></li>
+    <li><a href="database.html">数据库访问</a></li>
+    <li><a href="restapi.html">REST API</a></li>
+    <li><a href="testing.html">单元测试</a></li>
+    <li><a href="logging.html">日志与配置</a></li>
+  </ul>
+</aside>
+
+<main class="main">
+  <h1><span class="emoji">📐</span> 泛型</h1>
+
+  <p>泛型（Generics）让类型成为参数，编写更通用、类型安全的代码。Java 5 引入，是集合框架的基石。</p>
+
+  <h2>为什么需要泛型</h2>
+
+  <pre><span class="code-comment">// 没有泛型 — 需要强制转型，不安全</span>
+List list = <span class="code-keyword">new</span> ArrayList();
+list.add(<span class="code-string">"hello"</span>);
+String s = (String) list.get(0);   <span class="code-comment">// 必须手动转型</span>
+list.add(123);                      <span class="code-comment">// 不小心混入 Integer</span>
+String s2 = (String) list.get(1);  <span class="code-comment">// ❌ 运行时 ClassCastException</span>
+
+<span class="code-comment">// 有泛型 — 编译器检查类型安全</span>
+List&lt;String&gt; safe = <span class="code-keyword">new</span> ArrayList&lt;&gt;();
+safe.add(<span class="code-string">"hello"</span>);
+String s3 = safe.get(0);            <span class="code-comment">// 无需转型</span>
+<span class="code-comment">// safe.add(123);                   // ❌ 编译错误</span></pre>
+
+  <h2>泛型类</h2>
+
+  <pre><span class="code-comment">// 一个可以装任意类型的盒子</span>
+<span class="code-keyword">public class</span> <span class="code-type">Box</span>&lt;T&gt; {
+    <span class="code-keyword">private</span> T value;
+
+    <span class="code-keyword">public void</span> set(T value) { <span class="code-keyword">this</span>.value = value; }
+    <span class="code-keyword">public</span> T get() { <span class="code-keyword">return</span> value; }
+}
+
+<span class="code-comment">// 使用</span>
+Box&lt;Integer&gt; intBox = <span class="code-keyword">new</span> Box&lt;&gt;();
+intBox.set(42);
+Integer val = intBox.get();   <span class="code-comment">// 自动拆箱</span>
+
+Box&lt;String&gt; strBox = <span class="code-keyword">new</span> Box&lt;&gt;();
+strBox.set(<span class="code-string">"Hello"</span>);
+
+<span class="code-comment">// 多类型参数</span>
+<span class="code-keyword">public class</span> <span class="code-type">Pair</span>&lt;K, V&gt; {
+    <span class="code-keyword">private</span> K key;
+    <span class="code-keyword">private</span> V value;
+
+    <span class="code-keyword">public</span> Pair(K key, V value) {
+        <span class="code-keyword">this</span>.key = key;
+        <span class="code-keyword">this</span>.value = value;
+    }
+
+    <span class="code-keyword">public</span> K getKey() { <span class="code-keyword">return</span> key; }
+    <span class="code-keyword">public</span> V getValue() { <span class="code-keyword">return</span> value; }
+}
+
+Pair&lt;String, Integer&gt; pair = <span class="code-keyword">new</span> Pair&lt;&gt;(<span class="code-string">"age"</span>, 30);</pre>
+
+  <h2>泛型方法</h2>
+
+  <pre><span class="code-comment">// 类型参数放在返回类型之前</span>
+<span class="code-keyword">public class</span> <span class="code-type">Utils</span> {
+    <span class="code-keyword">public static</span> &lt;T&gt; T getMiddle(T... arr) {
+        <span class="code-keyword">return</span> arr[arr.length / 2];
+    }
+
+    <span class="code-keyword">public static</span> &lt;T <span class="code-keyword">extends</span> Comparable&lt;T&gt;&gt; T max(T a, T b) {
+        <span class="code-keyword">return</span> a.compareTo(b) &gt; 0 ? a : b;
+    }
+}
+
+String mid = Utils.getMiddle(<span class="code-string">"a"</span>, <span class="code-string">"b"</span>, <span class="code-string">"c"</span>);  <span class="code-comment">// "b"</span>
+Integer m = Utils.max(10, 20);                     <span class="code-comment">// 20</span></pre>
+
+  <h2>通配符（Wildcard）</h2>
+
+  <pre><span class="code-comment">// ? extends — 生产者，只能读取</span>
+<span class="code-keyword">public void</span> printAll(List&lt;? <span class="code-keyword">extends</span> Number&gt; list) {
+    <span class="code-keyword">for</span> (Number n : list) {
+        System.out.println(n);
+    }
+    <span class="code-comment">// list.add(42);  // ❌ 编译错误，不能写入</span>
+}
+
+<span class="code-comment">// ? super — 消费者，只能写入</span>
+<span class="code-keyword">public void</span> addNumbers(List&lt;? <span class="code-keyword">super</span> Integer&gt; list) {
+    list.add(1);
+    list.add(2);
+    <span class="code-comment">// Integer i = list.get(0);  // ❌ 编译错误</span>
+    Object o = list.get(0);       <span class="code-comment">// 只能当作 Object 读取</span>
+}
+
+<span class="code-comment">// 无界通配符</span>
+<span class="code-keyword">public void</span> printSize(List&lt;?&gt; list) {
+    System.out.println(list.size());
+}</pre>
+
+  <div class="info-box">
+    <strong>💡 PECS 原则</strong>
+    <p><strong>P</strong>roducer <strong>E</strong>xtends, <strong>C</strong>onsumer <strong>S</strong>uper — 生产者用 extends 只读，消费者用 super 只写。</p>
+  </div>
+
+  <h2>类型擦除</h2>
+  <p>Java 的泛型是编译期实现的，运行时擦除类型参数：</p>
+
+  <pre><span class="code-comment">// 编译后，Box&lt;T&gt; 中的 T 被替换为 Object（或上界）</span>
+Box&lt;String&gt; b1 = <span class="code-keyword">new</span> Box&lt;&gt;();
+Box&lt;Integer&gt; b2 = <span class="code-keyword">new</span> Box&lt;&gt;();
+System.out.println(b1.getClass() == b2.getClass());  <span class="code-comment">// true</span>
+
+<span class="code-comment">// 无法创建泛型数组：new T[] 不允许</span>
+<span class="code-comment">// 无法使用 instanceof：if (obj instanceof List&lt;String&gt;) 不允许</span></pre>
+
+  <div class="page-nav">
+    <a href="exceptions.html">← 异常处理</a>
+    <a href="collections.html">集合框架 →</a>
+  </div>
+</main>
+
+<script src="../js/main.js"></script>
+</body>
+</html>

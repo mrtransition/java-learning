@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>单元测试 — Java 入门教程</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <a href="../index.html"><span class="logo-icon">☕</span> Java 教程</a>
+  </div>
+  <ul class="sidebar-nav">
+    <li><a href="../index.html">🏠 首页</a></li>
+    <li class="nav-section">基础入门</li>
+    <li><a href="basics.html">变量与数据类型</a></li>
+    <li><a href="control-flow.html">流程控制</a></li>
+    <li><a href="oop.html">类与对象</a></li>
+    <li><a href="exceptions.html">异常处理</a></li>
+    <li><a href="generics.html">泛型</a></li>
+    <li class="nav-section">进阶提高</li>
+    <li><a href="collections.html">集合框架</a></li>
+    <li><a href="datetime.html">日期与时间</a></li>
+    <li><a href="streams.html">Lambda 与 Stream</a></li>
+    <li><a href="concurrency.html">多线程与并发</a></li>
+    <li><a href="advanced.html">注解 / IO / 反射</a></li>
+    <li class="nav-section">高阶实战</li>
+    <li><a href="maven.html">Maven 构建</a></li>
+    <li><a href="springboot.html">Spring Boot</a></li>
+    <li><a href="database.html">数据库访问</a></li>
+    <li><a href="restapi.html">REST API</a></li>
+    <li><a href="testing.html" class="active">单元测试</a></li>
+    <li><a href="logging.html">日志与配置</a></li>
+  </ul>
+</aside>
+
+<main class="main">
+  <h1><span class="emoji">🧪</span> 单元测试</h1>
+
+  <p>测试是保障代码质量的基石。企业级项目通常包含单元测试、集成测试和端到端测试三层。</p>
+
+  <h2>JUnit 5 基础</h2>
+
+  <pre><span class="code-keyword">import static</span> org.junit.jupiter.api.Assertions.*;
+
+<span class="code-keyword">import</span> org.junit.jupiter.api.*;
+
+<span class="code-keyword">class</span> <span class="code-type">CalculatorTest</span> {
+
+    <span class="code-keyword">private</span> Calculator calculator;
+
+    <span class="code-meta">@BeforeEach</span>
+    <span class="code-keyword">void</span> setUp() {
+        calculator = <span class="code-keyword">new</span> Calculator();
+    }
+
+    <span class="code-meta">@Test</span>
+    <span class="code-keyword">void</span> shouldAddTwoNumbers() {
+        <span class="code-keyword">int</span> result = calculator.add(2, 3);
+        assertEquals(5, result);
+    }
+
+    <span class="code-meta">@Test</span>
+    <span class="code-keyword">void</span> shouldThrowOnDivisionByZero() {
+        assertThrows(ArithmeticException.class,
+            () -&gt; calculator.divide(10, 0));
+    }
+
+    <span class="code-meta">@Test</span>
+    <span class="code-keyword">void</span> shouldCheckString() {
+        assertAll(<span class="code-string">"grouped assertions"</span>,
+            () -&gt; assertTrue(<span class="code-string">"hello"</span>.startsWith(<span class="code-string">"h"</span>)),
+            () -&gt; assertEquals(5, <span class="code-string">"hello"</span>.length()),
+            () -&gt; assertNotNull(<span class="code-string">"hello"</span>)
+        );
+    }
+}</pre>
+
+  <h2>Mockito — 隔离外部依赖</h2>
+
+  <pre><span class="code-keyword">import static</span> org.mockito.Mockito.*;
+<span class="code-keyword">import</span> org.mockito.junit.jupiter.MockitoExtension;
+
+<span class="code-meta">@ExtendWith</span>(MockitoExtension.class)
+<span class="code-keyword">class</span> <span class="code-type">UserServiceTest</span> {
+
+    <span class="code-meta">@Mock</span>
+    <span class="code-keyword">private</span> UserRepository userRepository;
+
+    <span class="code-meta">@InjectMocks</span>
+    <span class="code-keyword">private</span> UserService userService;
+
+    <span class="code-meta">@Test</span>
+    <span class="code-keyword">void</span> shouldFindUserById() {
+        User mockUser = <span class="code-keyword">new</span> User(<span class="code-string">"Alice"</span>, <span class="code-string">"alice@example.com"</span>);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser));
+
+        User result = userService.findById(1L);
+
+        assertNotNull(result);
+        assertEquals(<span class="code-string">"Alice"</span>, result.getName());
+        verify(userRepository).findById(1L);   <span class="code-comment">// 验证方法被调用</span>
+    }
+
+    <span class="code-meta">@Test</span>
+    <span class="code-keyword">void</span> shouldThrowWhenUserNotFound() {
+        when(userRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class,
+            () -&gt; userService.findById(99L));
+    }
+
+    <span class="code-meta">@Test</span>
+    <span class="code-keyword">void</span> shouldVerifyInteraction() {
+        userService.delete(1L);
+        verify(userRepository).deleteById(1L);
+        verifyNoMoreInteractions(userRepository);
+    }
+}</pre>
+
+  <h2>MockMvc — 测试 Controller</h2>
+
+  <pre><span class="code-keyword">import</span> java.util.Arrays;
+
+<span class="code-meta">@SpringBootTest</span>
+<span class="code-meta">@AutoConfigureMockMvc</span>
+<span class="code-keyword">class</span> <span class="code-type">UserControllerTest</span> {
+
+    <span class="code-meta">@Autowired</span>
+    <span class="code-keyword">private</span> MockMvc mockMvc;
+
+    <span class="code-meta">@MockBean</span>
+    <span class="code-keyword">private</span> UserService userService;
+
+    <span class="code-meta">@Test</span>
+    <span class="code-keyword">void</span> shouldReturnUserList() <span class="code-keyword">throws</span> Exception {
+        when(userService.findAll(any(Pageable.class)))
+            .thenReturn(Arrays.asList(<span class="code-keyword">new</span> User(<span class="code-string">"Alice"</span>, <span class="code-string">"alice@test.com"</span>)));
+
+        mockMvc.perform(get(<span class="code-string">"/api/v1/users"</span>)
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath(<span class="code-string">"$"</span>, hasSize(1)))
+            .andExpect(jsonPath(<span class="code-string">"$[0].name"</span>).value(<span class="code-string">"Alice"</span>));
+    }
+
+    <span class="code-meta">@Test</span>
+    <span class="code-keyword">void</span> shouldReturn404WhenUserNotFound() <span class="code-keyword">throws</span> Exception {
+        when(userService.findById(99L))
+            .thenThrow(<span class="code-keyword">new</span> ResourceNotFoundException(<span class="code-string">"用户不存在"</span>));
+
+        mockMvc.perform(get(<span class="code-string">"/api/v1/users/99"</span>))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath(<span class="code-string">"$.message"</span>).value(<span class="code-string">"用户不存在"</span>));
+    }
+}</pre>
+
+  <h2>Testcontainers — 真实数据库集成测试</h2>
+
+  <pre><span class="code-keyword">import</span> org.testcontainers.containers.MySQLContainer;
+
+<span class="code-meta">@SpringBootTest</span>
+<span class="code-meta">@Testcontainers</span>
+<span class="code-keyword">class</span> <span class="code-type">UserRepositoryTest</span> {
+
+    <span class="code-comment">// 启动真实 MySQL 容器</span>
+    <span class="code-meta">@Container</span>
+    <span class="code-keyword">static</span> MySQLContainer&lt;?&gt; mysql = <span class="code-keyword">new</span> MySQLContainer&lt;&gt;(<span class="code-string">"mysql:8.0"</span>)
+            .withDatabaseName(<span class="code-string">"testdb"</span>);
+
+    <span class="code-meta">@DynamicPropertySource</span>
+    <span class="code-keyword">static</span> <span class="code-keyword">void</span> configureProperties(DynamicPropertyRegistry registry) {
+        registry.add(<span class="code-string">"spring.datasource.url"</span>, mysql::getJdbcUrl);
+        registry.add(<span class="code-string">"spring.datasource.username"</span>, mysql::getUsername);
+        registry.add(<span class="code-string">"spring.datasource.password"</span>, mysql::getPassword);
+    }
+
+    <span class="code-meta">@Autowired</span>
+    <span class="code-keyword">private</span> UserRepository userRepository;
+
+    <span class="code-meta">@Test</span>
+    <span class="code-keyword">void</span> shouldSaveAndFindUser() {
+        User user = <span class="code-keyword">new</span> User(<span class="code-string">"Alice"</span>, <span class="code-string">"alice@test.com"</span>);
+        user = userRepository.save(user);
+
+        Optional&lt;User&gt; found = userRepository.findById(user.getId());
+        assertTrue(found.isPresent());
+        assertEquals(<span class="code-string">"Alice"</span>, found.get().getName());
+    }
+}</pre>
+
+  <h2>测试金字塔与策略</h2>
+
+  <table>
+    <tr><th>层级</th><th>速度</th><th>比例</th><th>工具</th></tr>
+    <tr><td>单元测试</td><td>毫秒级</td><td>70%</td><td>JUnit + Mockito</td></tr>
+    <tr><td>集成测试</td><td>秒级</td><td>20%</td><td>@SpringBootTest + Testcontainers</td></tr>
+    <tr><td>端到端测试</td><td>分钟级</td><td>10%</td><td>Cypress / Playwright</td></tr>
+  </table>
+
+  <div class="info-box">
+    <strong>💡 测试最佳实践</strong>
+    <ul>
+      <li>方法名使用 <code>shouldXxxWhenYyy</code> 格式，清晰表达意图</li>
+      <li>遵循 AAA 模式：Arrange（准备）→ Act（执行）→ Assert（断言）</li>
+      <li>每个测试只测一个行为，一个断言失败不应影响其他测试</li>
+      <li>使用 <code>@ParameterizedTest</code> 测试多组数据</li>
+      <li>集成测试用 <code>@Testcontainers</code> 而非 H2 内存库</li>
+    </ul>
+  </div>
+
+  <div class="page-nav">
+    <a href="restapi.html">← REST API</a>
+    <a href="logging.html">日志与配置 →</a>
+  </div>
+</main>
+
+<script src="../js/main.js"></script>
+</body>
+</html>

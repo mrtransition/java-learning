@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>注解 / IO / 反射 — Java 入门教程</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <a href="../index.html"><span class="logo-icon">☕</span> Java 教程</a>
+  </div>
+  <ul class="sidebar-nav">
+    <li><a href="../index.html">🏠 首页</a></li>
+    <li class="nav-section">基础入门</li>
+    <li><a href="basics.html">变量与数据类型</a></li>
+    <li><a href="control-flow.html">流程控制</a></li>
+    <li><a href="oop.html">类与对象</a></li>
+    <li><a href="exceptions.html">异常处理</a></li>
+    <li><a href="generics.html">泛型</a></li>
+    <li class="nav-section">进阶提高</li>
+    <li><a href="collections.html">集合框架</a></li>
+    <li><a href="datetime.html">日期与时间</a></li>
+    <li><a href="streams.html">Lambda 与 Stream</a></li>
+    <li><a href="concurrency.html">多线程与并发</a></li>
+    <li><a href="advanced.html" class="active">注解 / IO / 反射</a></li>
+    <li class="nav-section">高阶实战</li>
+    <li><a href="maven.html">Maven 构建</a></li>
+    <li><a href="springboot.html">Spring Boot</a></li>
+    <li><a href="database.html">数据库访问</a></li>
+    <li><a href="restapi.html">REST API</a></li>
+    <li><a href="testing.html">单元测试</a></li>
+    <li><a href="logging.html">日志与配置</a></li>
+  </ul>
+</aside>
+
+<main class="main">
+  <h1><span class="emoji">🔧</span> 注解 / IO / 反射</h1>
+
+  <p>这三个主题贯穿框架底层：注解提供元数据，IO 处理数据读写，反射实现运行时动态操作。</p>
+
+  <h2>一、注解（Annotation）</h2>
+  <p>注解是附加在代码上的元数据，不影响程序逻辑，但可被编译器或运行时读取处理。</p>
+
+  <h3>内置注解</h3>
+  <table>
+    <tr><th>注解</th><th>作用</th></tr>
+    <tr><td>@Override</td><td>标记方法重写父类方法</td></tr>
+    <tr><td>@Deprecated</td><td>标记已过时的 API</td></tr>
+    <tr><td>@SuppressWarnings</td><td>抑制编译器警告</td></tr>
+    <tr><td>@FunctionalInterface</td><td>标记函数式接口</td></tr>
+  </table>
+
+  <h3>自定义注解</h3>
+
+  <pre><span class="code-keyword">import</span> java.lang.annotation.*;
+
+<span class="code-meta">@Retention</span>(RetentionPolicy.RUNTIME)   <span class="code-comment">// 运行时可读</span>
+<span class="code-meta">@Target</span>(ElementType.FIELD)           <span class="code-comment">// 作用于字段</span>
+<span class="code-keyword">public</span> <span class="code-meta">@interface</span> <span class="code-type">Column</span> {
+    String name();
+    <span class="code-keyword">boolean</span> nullable() <span class="code-keyword">default true</span>;
+    <span class="code-keyword">int</span> length() <span class="code-keyword">default</span> 255;
+}
+
+<span class="code-comment">// 使用自定义注解</span>
+<span class="code-keyword">public class</span> <span class="code-type">User</span> {
+    <span class="code-meta">@Column</span>(name = <span class="code-string">"user_name"</span>, nullable = <span class="code-keyword">false</span>, length = 50)
+    <span class="code-keyword">private</span> String username;
+}
+
+<span class="code-comment">// 元注解：@Retention（保留策略）、@Target（作用目标）</span>
+<span class="code-comment">// RetentionPolicy: SOURCE | CLASS | RUNTIME</span>
+<span class="code-comment">// ElementType: FIELD, METHOD, TYPE, PARAMETER, CONSTRUCTOR...</span></pre>
+
+  <hr>
+
+  <h2>二、Java I/O</h2>
+
+  <h3>文件读写</h3>
+
+  <pre><span class="code-keyword">import</span> java.nio.file.*;
+<span class="code-keyword">import</span> java.util.stream.Stream;
+
+<span class="code-comment">// Files.readString / writeString (Java 11+) 更简洁</span>
+String content = <span class="code-keyword">new</span> String(Files.readAllBytes(Paths.get(<span class="code-string">"input.txt"</span>)));
+Files.write(Paths.get(<span class="code-string">"output.txt"</span>), content.getBytes());
+
+List&lt;String&gt; lines = Files.readAllLines(Paths.get(<span class="code-string">"data.txt"</span>));
+Files.write(Paths.get(<span class="code-string">"out.txt"</span>), lines);
+
+<span class="code-comment">// Stream 方式处理大文件</span>
+<span class="code-keyword">try</span> (Stream&lt;String&gt; stream = Files.lines(Paths.get(<span class="code-string">"large.log"</span>))) {
+    stream.filter(line -> line.contains(<span class="code-string">"ERROR"</span>))
+          .forEach(System.out::println);
+}
+
+<span class="code-comment">// 传统 IO 流</span>
+<span class="code-keyword">try</span> (BufferedReader reader = <span class="code-keyword">new</span> BufferedReader(<span class="code-keyword">new</span> FileReader(<span class="code-string">"file.txt"</span>));
+     BufferedWriter writer = <span class="code-keyword">new</span> BufferedWriter(<span class="code-keyword">new</span> FileWriter(<span class="code-string">"out.txt"</span>))) {
+    String line;
+    <span class="code-keyword">while</span> ((line = reader.readLine()) != <span class="code-keyword">null</span>) {
+        writer.write(line);
+        writer.newLine();
+    }
+}</pre>
+
+  <h3>字节流与缓冲</h3>
+
+  <pre><span class="code-comment">// 文件复制 — 缓冲字节流</span>
+<span class="code-keyword">try</span> (InputStream in = <span class="code-keyword">new</span> BufferedInputStream(<span class="code-keyword">new</span> FileInputStream(<span class="code-string">"source.pdf"</span>));
+     OutputStream out = <span class="code-keyword">new</span> BufferedOutputStream(<span class="code-keyword">new</span> FileOutputStream(<span class="code-string">"copy.pdf"</span>))) {
+    <span class="code-keyword">byte</span>[] buf = <span class="code-keyword">new byte</span>[8192];
+    <span class="code-keyword">int</span> len;
+    <span class="code-keyword">while</span> ((len = in.read(buf)) != -1) {
+        out.write(buf, 0, len);
+    }
+}
+
+<span class="code-comment">// NIO 更高效的复制</span>
+Files.copy(Paths.get(<span class="code-string">"source.pdf"</span>), Paths.get(<span class="code-string">"copy.pdf"</span>),
+           StandardCopyOption.REPLACE_EXISTING);</pre>
+
+  <hr>
+
+  <h2>三、反射（Reflection）</h2>
+  <p>反射让程序在运行时检查或修改类和对象的行为。Spring、Hibernate、JUnit 等框架的核心机制。</p>
+
+  <h3>获取 Class 对象</h3>
+
+  <pre><span class="code-comment">// 三种获取方式</span>
+Class&lt;?&gt; c1 = String.class;                  <span class="code-comment">// .class 字面量</span>
+Class&lt;?&gt; c2 = <span class="code-string">"hello"</span>.getClass();            <span class="code-comment">// 实例的 getClass()</span>
+Class&lt;?&gt; c3 = Class.forName(<span class="code-string">"java.lang.String"</span>);  <span class="code-comment">// 全限定名</span></pre>
+
+  <h3>反射操作</h3>
+
+  <pre><span class="code-keyword">import</span> java.lang.reflect.*;
+<span class="code-keyword">import</span> com.example.Column;
+
+<span class="code-keyword">public class</span> <span class="code-type">ReflectionDemo</span> {
+    <span class="code-keyword">public static void</span> main(String[] args) <span class="code-keyword">throws</span> Exception {
+        Class&lt;?&gt; clazz = Class.forName(<span class="code-string">"com.example.User"</span>);
+
+        <span class="code-comment">// 创建实例（调用无参构造器）</span>
+        Object obj = clazz.getDeclaredConstructor().newInstance();
+
+        <span class="code-comment">// 读取字段值</span>
+        Field field = clazz.getDeclaredField(<span class="code-string">"name"</span>);
+        field.setAccessible(<span class="code-keyword">true</span>);              <span class="code-comment">// 绕过 private</span>
+        field.set(obj, <span class="code-string">"Alice"</span>);
+        System.out.println(field.get(obj));
+
+        <span class="code-comment">// 调用方法</span>
+        Method method = clazz.getMethod(<span class="code-string">"getName"</span>);
+        String name = (String) method.invoke(obj);
+
+        <span class="code-comment">// 获取注解</span>
+        Column col = field.getAnnotation(Column.class);
+        System.out.println(col.name());
+
+        <span class="code-comment">// 获取泛型信息</span>
+        <span class="code-keyword">for</span> (TypeVariable t : clazz.getTypeParameters()) {
+            System.out.println(t.getName());
+        }
+    }
+}</pre>
+
+  <div class="info-box warn">
+    <strong>⚠️ 反射注意事项</strong>
+    <ul>
+      <li>反射有性能开销（比直接调用慢 10-100 倍），不要用于高频代码</li>
+      <li><code>setAccessible(true)</code> 破坏封装性，谨慎使用</li>
+      <li>反射调用会绕过编译期检查，出错在运行时才暴露</li>
+      <li>框架层面使用反射，业务代码尽量避免</li>
+    </ul>
+  </div>
+
+  <div class="page-nav">
+    <a href="concurrency.html">← 多线程与并发</a>
+    <a href="maven.html">Maven 构建 →</a>
+  </div>
+</main>
+
+<script src="../js/main.js"></script>
+</body>
+</html>

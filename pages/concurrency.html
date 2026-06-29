@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>多线程与并发 — Java 入门教程</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <a href="../index.html"><span class="logo-icon">☕</span> Java 教程</a>
+  </div>
+  <ul class="sidebar-nav">
+    <li><a href="../index.html">🏠 首页</a></li>
+    <li class="nav-section">基础入门</li>
+    <li><a href="basics.html">变量与数据类型</a></li>
+    <li><a href="control-flow.html">流程控制</a></li>
+    <li><a href="oop.html">类与对象</a></li>
+    <li><a href="exceptions.html">异常处理</a></li>
+    <li><a href="generics.html">泛型</a></li>
+    <li class="nav-section">进阶提高</li>
+    <li><a href="collections.html">集合框架</a></li>
+    <li><a href="datetime.html">日期与时间</a></li>
+    <li><a href="streams.html">Lambda 与 Stream</a></li>
+    <li><a href="concurrency.html" class="active">多线程与并发</a></li>
+    <li><a href="advanced.html">注解 / IO / 反射</a></li>
+    <li class="nav-section">高阶实战</li>
+    <li><a href="maven.html">Maven 构建</a></li>
+    <li><a href="springboot.html">Spring Boot</a></li>
+    <li><a href="database.html">数据库访问</a></li>
+    <li><a href="restapi.html">REST API</a></li>
+    <li><a href="testing.html">单元测试</a></li>
+    <li><a href="logging.html">日志与配置</a></li>
+  </ul>
+</aside>
+
+<main class="main">
+  <h1><span class="emoji">⚡</span> 多线程与并发</h1>
+
+  <p>并发编程让 Java 应用充分利用多核 CPU。理解线程模型和并发工具是后端开发的核心技能。</p>
+
+  <h2>创建线程</h2>
+
+  <pre><span class="code-comment">// 方式一：继承 Thread</span>
+<span class="code-keyword">class</span> <span class="code-type">MyThread</span> <span class="code-keyword">extends</span> Thread {
+    <span class="code-meta">@Override</span>
+    <span class="code-keyword">public void</span> run() {
+        System.out.println(<span class="code-string">"线程运行: "</span> + getName());
+    }
+}
+<span class="code-keyword">new</span> MyThread().start();
+
+<span class="code-comment">// 方式二：实现 Runnable（推荐）</span>
+Runnable task = () -> System.out.println(<span class="code-string">"Runnable 运行"</span>);
+<span class="code-keyword">new</span> Thread(task).start();
+
+<span class="code-comment">// 方式三：Callable + Future（有返回值）</span>
+Callable&lt;Integer&gt; callable = () -> {
+    Thread.sleep(1000);
+    <span class="code-keyword">return</span> 42;
+};
+FutureTask&lt;Integer&gt; ft = <span class="code-keyword">new</span> FutureTask&lt;&gt;(callable);
+<span class="code-keyword">new</span> Thread(ft).start();
+Integer result = ft.get();   <span class="code-comment">// 阻塞直到拿到结果</span></pre>
+
+  <h2>线程池（ExecutorService）</h2>
+  <p>永远不要直接用 <code>new Thread()</code>，使用线程池管理线程资源：</p>
+
+  <pre><span class="code-keyword">import</span> java.util.concurrent.*;
+
+<span class="code-comment">// 创建线程池</span>
+ExecutorService pool = Executors.newFixedThreadPool(4);
+
+<span class="code-comment">// 提交任务</span>
+pool.execute(() -> System.out.println(<span class="code-string">"无返回值任务"</span>));
+
+Future&lt;String&gt; future = pool.submit(() -> {
+    Thread.sleep(500);
+    <span class="code-keyword">return</span> <span class="code-string">"完成"</span>;
+});
+String result = future.get(3, TimeUnit.SECONDS);  <span class="code-comment">// 超时控制</span>
+
+<span class="code-comment">// 关闭线程池</span>
+pool.shutdown();                      <span class="code-comment">// 不再接受新任务，等待已有任务完成</span>
+pool.awaitTermination(30, TimeUnit.SECONDS);
+<span class="code-comment">// pool.shutdownNow();               // 立即停止</span></pre>
+
+  <h2>线程池参数</h2>
+
+  <pre><span class="code-comment">// 手动创建线程池，明确参数</span>
+ThreadPoolExecutor executor = <span class="code-keyword">new</span> ThreadPoolExecutor(
+    2,                                  <span class="code-comment">// corePoolSize — 核心线程数</span>
+    8,                                  <span class="code-comment">// maximumPoolSize — 最大线程数</span>
+    60, TimeUnit.SECONDS,               <span class="code-comment">// 空闲线程存活时间</span>
+    <span class="code-keyword">new</span> LinkedBlockingQueue&lt;&gt;(100),     <span class="code-comment">// 工作队列容量</span>
+    Executors.defaultThreadFactory(),   <span class="code-comment">// 线程工厂</span>
+    <span class="code-keyword">new</span> ThreadPoolExecutor.AbortPolicy() <span class="code-comment">// 拒绝策略（默认抛异常）</span>
+);
+
+<span class="code-comment">// 拒绝策略：</span>
+<span class="code-comment">// AbortPolicy — 抛 RejectedExecutionException</span>
+<span class="code-comment">// CallerRunsPolicy — 调用者线程执行</span>
+<span class="code-comment">// DiscardPolicy — 丢弃不抛出异常</span>
+<span class="code-comment">// DiscardOldestPolicy — 丢弃队列中最旧的任务</span></pre>
+
+  <h2>线程安全与锁</h2>
+
+  <pre><span class="code-comment">// synchronized — 隐式锁</span>
+<span class="code-keyword">public class</span> <span class="code-type">Counter</span> {
+    <span class="code-keyword">private int</span> count = 0;
+
+    <span class="code-keyword">public synchronized void</span> increment() {
+        count++;
+    }
+
+    <span class="code-keyword">public synchronized int</span> getCount() {
+        <span class="code-keyword">return</span> count;
+    }
+}
+
+<span class="code-comment">// ReentrantLock — 显式锁（更灵活）</span>
+Lock lock = <span class="code-keyword">new</span> ReentrantLock();
+lock.lock();
+<span class="code-keyword">try</span> {
+    <span class="code-comment">// 临界区代码</span>
+} <span class="code-keyword">finally</span> {
+    lock.unlock();   <span class="code-comment">// 必须 finally 中释放</span>
+}
+
+<span class="code-comment">// ReadWriteLock — 读多写少场景优化</span>
+ReadWriteLock rw = <span class="code-keyword">new</span> ReentrantReadWriteLock();
+rw.readLock().lock();   <span class="code-comment">// 多个线程可同时读</span>
+rw.writeLock().lock();  <span class="code-comment">// 写时独占</span></pre>
+
+  <h2>并发工具类</h2>
+
+  <table>
+    <tr><th>类</th><th>用途</th></tr>
+    <tr><td>CountDownLatch</td><td>等待 N 个线程都完成后再继续</td></tr>
+    <tr><td>CyclicBarrier</td><td>N 个线程相互等待，全部到达后再继续</td></tr>
+    <tr><td>Semaphore</td><td>控制同时访问的线程数（限流）</td></tr>
+    <tr><td>CompletableFuture</td><td>异步编排，链式组合多个异步任务</td></tr>
+  </table>
+
+  <pre><span class="code-comment">// CountDownLatch — 等待所有线程完成</span>
+CountDownLatch latch = <span class="code-keyword">new</span> CountDownLatch(3);
+ExecutorService pool = Executors.newFixedThreadPool(3);
+<span class="code-keyword">for</span> (<span class="code-keyword">int</span> i = 0; i &lt; 3; i++) {
+    pool.submit(() -> {
+        <span class="code-keyword">try</span> { Thread.sleep(1000); }
+        <span class="code-keyword">catch</span> (InterruptedException ignored) {}
+        latch.countDown();   <span class="code-comment">// 完成一个，计数减一</span>
+    });
+}
+latch.await();   <span class="code-comment">// 主线程等待所有任务完成</span>
+System.out.println(<span class="code-string">"全部完成"</span>);
+
+<span class="code-comment">// CompletableFuture — 异步编排</span>
+CompletableFuture
+    .supplyAsync(() -&gt; fetchUser())
+    .thenApply(user -&gt; user.getOrders())
+    .thenAccept(orders -&gt; System.out.println(orders))
+    .exceptionally(e -> {
+        log.error(<span class="code-string">"查询失败"</span>, e);
+        <span class="code-keyword">return null</span>;
+    });</pre>
+
+  <h2>volatile 与原子类</h2>
+
+  <pre><span class="code-keyword">import</span> java.util.concurrent.atomic.*;
+
+<span class="code-comment">// volatile — 保证可见性，不保证原子性</span>
+<span class="code-keyword">private volatile boolean</span> running = <span class="code-keyword">true</span>;
+
+<span class="code-comment">// Atomic 类 — 无锁线程安全</span>
+AtomicInteger count = <span class="code-keyword">new</span> AtomicInteger(0);
+count.incrementAndGet();              <span class="code-comment">// ++i</span>
+count.getAndIncrement();              <span class="code-comment">// i++</span>
+count.compareAndSet(1, 100);          <span class="code-comment">// CAS 操作</span>
+
+AtomicLongArray arr = <span class="code-keyword">new</span> AtomicLongArray(10);
+arr.incrementAndGet(0);
+
+AtomicReference&lt;String&gt; ref = <span class="code-keyword">new</span> AtomicReference&lt;&gt;(<span class="code-string">"初始"</span>);
+ref.compareAndSet(<span class="code-string">"初始"</span>, <span class="code-string">"新值"</span>);</pre>
+
+  <div class="info-box warn">
+    <strong>⚠️ 常见陷阱</strong>
+    <ul>
+      <li>不要使用 <code>new Thread()</code>，始终用线程池</li>
+      <li>避免使用 <code>Executors.newCachedThreadPool()</code>（无上限线程）</li>
+      <li><code>synchronized</code> 不要锁住非 final 字段</li>
+      <li>线程池的 <code>submit(Runnable)</code> 会吞掉异常，需要用 <code>Future.get()</code> 捕获</li>
+      <li>锁的范围尽可能小，避免死锁</li>
+    </ul>
+  </div>
+
+  <div class="page-nav">
+    <a href="streams.html">← Lambda 与 Stream</a>
+    <a href="advanced.html">注解 / IO / 反射 →</a>
+  </div>
+</main>
+
+<script src="../js/main.js"></script>
+</body>
+</html>

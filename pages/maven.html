@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Maven 构建工具 — Java 入门教程</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <a href="../index.html"><span class="logo-icon">☕</span> Java 教程</a>
+  </div>
+  <ul class="sidebar-nav">
+    <li><a href="../index.html">🏠 首页</a></li>
+    <li class="nav-section">基础入门</li>
+    <li><a href="basics.html">变量与数据类型</a></li>
+    <li><a href="control-flow.html">流程控制</a></li>
+    <li><a href="oop.html">类与对象</a></li>
+    <li><a href="exceptions.html">异常处理</a></li>
+    <li><a href="generics.html">泛型</a></li>
+    <li class="nav-section">进阶提高</li>
+    <li><a href="collections.html">集合框架</a></li>
+    <li><a href="datetime.html">日期与时间</a></li>
+    <li><a href="streams.html">Lambda 与 Stream</a></li>
+    <li><a href="concurrency.html">多线程与并发</a></li>
+    <li><a href="advanced.html">注解 / IO / 反射</a></li>
+    <li class="nav-section">高阶实战</li>
+    <li><a href="maven.html" class="active">Maven 构建</a></li>
+    <li><a href="springboot.html">Spring Boot</a></li>
+    <li><a href="database.html">数据库访问</a></li>
+    <li><a href="restapi.html">REST API</a></li>
+    <li><a href="testing.html">单元测试</a></li>
+    <li><a href="logging.html">日志与配置</a></li>
+  </ul>
+</aside>
+
+<main class="main">
+  <h1><span class="emoji">📦</span> Maven 构建工具</h1>
+
+  <p>Maven 是 Java 最主流的项目构建和依赖管理工具。它使用 <code>pom.xml</code> 描述项目结构。</p>
+
+  <h2>pom.xml 结构</h2>
+
+  <pre><span class="code-keyword">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>
+&lt;project xmlns=<span class="code-string">"http://maven.apache.org/POM/4.0.0"</span>&gt;
+    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+
+    &lt;groupId&gt;com.example&lt;/groupId&gt;
+    &lt;artifactId&gt;my-app&lt;/artifactId&gt;
+    &lt;version&gt;1.0.0&lt;/version&gt;
+    &lt;packaging&gt;jar&lt;/packaging&gt;
+
+    &lt;properties&gt;
+        &lt;java.version&gt;1.8&lt;/java.version&gt;
+        &lt;maven.compiler.source&gt;1.8&lt;/maven.compiler.source&gt;
+        &lt;maven.compiler.target&gt;1.8&lt;/maven.compiler.target&gt;
+    &lt;/properties&gt;
+
+    &lt;dependencies&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.junit.jupiter&lt;/groupId&gt;
+            &lt;artifactId&gt;junit-jupiter&lt;/artifactId&gt;
+            &lt;version&gt;5.8.2&lt;/version&gt;
+            &lt;scope&gt;test&lt;/scope&gt;
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+&lt;/project&gt;</pre>
+
+  <h2>常用命令</h2>
+
+  <table>
+    <tr><th>命令</th><th>说明</th></tr>
+    <tr><td><code>mvn clean</code></td><td>删除 <code>target/</code> 目录</td></tr>
+    <tr><td><code>mvn compile</code></td><td>编译源代码到 <code>target/classes</code></td></tr>
+    <tr><td><code>mvn test</code></td><td>运行测试（编译 test 源码并执行）</td></tr>
+    <tr><td><code>mvn package</code></td><td>打包为 jar/war</td></tr>
+    <tr><td><code>mvn install</code></td><td>安装到本地仓库（供其他项目引用）</td></tr>
+    <tr><td><code>mvn clean package -DskipTests</code></td><td>清理后打包，跳过测试</td></tr>
+    <tr><td><code>mvn dependency:tree</code></td><td>查看依赖树</td></tr>
+    <tr><td><code>mvn help:effective-pom</code></td><td>查看合并所有父 POM 后的最终 POM</td></tr>
+  </table>
+
+  <h2>依赖 scope</h2>
+
+  <table>
+    <tr><th>scope</th><th>编译</th><th>测试</th><th>运行时</th><th>打包</th><th>示例</th></tr>
+    <tr><td>compile（默认）</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>commons-lang3</td></tr>
+    <tr><td>provided</td><td>✓</td><td>✓</td><td>✗</td><td>✗</td><td>servlet-api（容器提供）</td></tr>
+    <tr><td>runtime</td><td>✗</td><td>✓</td><td>✓</td><td>✓</td><td>MySQL JDBC 驱动</td></tr>
+    <tr><td>test</td><td>✗</td><td>✓</td><td>✗</td><td>✗</td><td>JUnit, Mockito</td></tr>
+  </table>
+
+  <h2>继承与聚合</h2>
+
+  <pre><span class="code-comment">&lt;!-- 父 POM — 统一版本管理 --&gt;</span>
+    &lt;parent&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-parent&lt;/artifactId&gt;
+        &lt;version&gt;2.7.18&lt;/version&gt;    <span class="code-comment">&lt;!-- Spring Boot 3.x (Java 17+) 使用 3.x 版本 --&gt;</span>
+    &lt;/parent&gt;
+
+<span class="code-comment">&lt;!-- 多模块聚合 --&gt;</span>
+&lt;modules&gt;
+    &lt;module&gt;common&lt;/module&gt;
+    &lt;module&gt;api&lt;/module&gt;
+    &lt;module&gt;service&lt;/module&gt;
+&lt;/modules&gt;</pre>
+
+  <h2>Profile — 多环境配置</h2>
+
+  <pre>&lt;profiles&gt;
+    &lt;profile&gt;
+        &lt;id&gt;dev&lt;/id&gt;
+        &lt;activation&gt;&lt;activeByDefault&gt;true&lt;/activeByDefault&gt;&lt;/activation&gt;
+        &lt;properties&gt;
+            &lt;db.url&gt;jdbc:h2:mem:testdb&lt;/db.url&gt;
+        &lt;/properties&gt;
+    &lt;/profile&gt;
+    &lt;profile&gt;
+        &lt;id&gt;prod&lt;/id&gt;
+        &lt;properties&gt;
+            &lt;db.url&gt;jdbc:mysql://prod-server:3306/mydb&lt;/db.url&gt;
+        &lt;/properties&gt;
+    &lt;/profile&gt;
+&lt;/profiles&gt;
+
+<span class="code-comment"># 使用：mvn clean package -Pprod</span></pre>
+
+  <h2>实用插件</h2>
+
+  <table>
+    <tr><th>插件</th><th>用途</th></tr>
+    <tr><td>maven-compiler-plugin</td><td>指定 Java 编译版本</td></tr>
+    <tr><td>maven-surefire-plugin</td><td>运行单元测试</td></tr>
+    <tr><td>maven-failsafe-plugin</td><td>运行集成测试（后缀 IT）</td></tr>
+    <tr><td>spring-boot-maven-plugin</td><td>打包可执行 fat jar</td></tr>
+    <tr><td>maven-checkstyle-plugin</td><td>代码风格检查</td></tr>
+    <tr><td>maven-jar-plugin / maven-assembly-plugin</td><td>自定义打包</td></tr>
+  </table>
+
+  <div class="info-box">
+    <strong>💡 最佳实践</strong>
+    <ul>
+      <li>在父 POM 的 <code>&lt;dependencyManagement&gt;</code> 中统一管理版本号，子模块不写版本</li>
+      <li>使用 <code>mvn dependency:tree</code> 排查冲突</li>
+      <li>CI 中始终以 <code>mvn clean verify</code> 替代 <code>package</code>（包含集成测试）</li>
+      <li>利用 <code>.mvn/jvm.config</code> 统一 JVM 参数</li>
+    </ul>
+  </div>
+
+  <div class="page-nav">
+    <a href="advanced.html">← 注解 / IO / 反射</a>
+    <a href="springboot.html">Spring Boot →</a>
+  </div>
+</main>
+
+<script src="../js/main.js"></script>
+</body>
+</html>

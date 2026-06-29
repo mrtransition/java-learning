@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>异常处理 — Java 入门教程</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <a href="../index.html"><span class="logo-icon">☕</span> Java 教程</a>
+  </div>
+  <ul class="sidebar-nav">
+    <li><a href="../index.html">🏠 首页</a></li>
+    <li class="nav-section">基础入门</li>
+    <li><a href="basics.html">变量与数据类型</a></li>
+    <li><a href="control-flow.html">流程控制</a></li>
+    <li><a href="oop.html">类与对象</a></li>
+    <li><a href="exceptions.html" class="active">异常处理</a></li>
+    <li><a href="generics.html">泛型</a></li>
+    <li class="nav-section">进阶提高</li>
+    <li><a href="collections.html">集合框架</a></li>
+    <li><a href="datetime.html">日期与时间</a></li>
+    <li><a href="streams.html">Lambda 与 Stream</a></li>
+    <li><a href="concurrency.html">多线程与并发</a></li>
+    <li><a href="advanced.html">注解 / IO / 反射</a></li>
+    <li class="nav-section">高阶实战</li>
+    <li><a href="maven.html">Maven 构建</a></li>
+    <li><a href="springboot.html">Spring Boot</a></li>
+    <li><a href="database.html">数据库访问</a></li>
+    <li><a href="restapi.html">REST API</a></li>
+    <li><a href="testing.html">单元测试</a></li>
+    <li><a href="logging.html">日志与配置</a></li>
+  </ul>
+</aside>
+
+<main class="main">
+  <h1><span class="emoji">⚠️</span> 异常处理</h1>
+
+  <h2>try / catch / finally</h2>
+
+  <pre><span class="code-keyword">import</span> java.io.*;
+
+<span class="code-keyword">public class</span> <span class="code-type">ExceptionDemo</span> {
+    <span class="code-keyword">public static void</span> main(String[] args) {
+        BufferedReader reader = <span class="code-keyword">null</span>;
+        <span class="code-keyword">try</span> {
+            reader = <span class="code-keyword">new</span> BufferedReader(<span class="code-keyword">new</span> FileReader(<span class="code-string">"test.txt"</span>));
+            System.out.println(reader.readLine());
+        } <span class="code-keyword">catch</span> (FileNotFoundException e) {
+            System.err.println(<span class="code-string">"文件未找到: "</span> + e.getMessage());
+        } <span class="code-keyword">catch</span> (IOException e) {
+            System.err.println(<span class="code-string">"读取错误: "</span> + e.getMessage());
+        } <span class="code-keyword">finally</span> {
+            <span class="code-keyword">if</span> (reader != <span class="code-keyword">null</span>) {
+                <span class="code-keyword">try</span> { reader.close(); }
+                <span class="code-keyword">catch</span> (IOException ignored) {}
+            }
+        }
+    }
+}</pre>
+
+  <h2>try-with-resources <span class="version-badge">Java 7+</span></h2>
+  <p>自动关闭实现了 <code>AutoCloseable</code> 的资源，无需 finally：</p>
+
+  <pre><span class="code-keyword">import</span> java.nio.file.*;
+<span class="code-keyword">import</span> java.util.stream.Stream;
+
+<span class="code-keyword">public class</span> <span class="code-type">TryWithResources</span> {
+    <span class="code-keyword">public static void</span> main(String[] args) {
+        Path path = Paths.get(<span class="code-string">"hello.txt"</span>);
+
+        <span class="code-keyword">try</span> (Stream&lt;String&gt; lines = Files.lines(path)) {
+            lines.forEach(System.out::println);
+        } <span class="code-keyword">catch</span> (IOException e) {
+            System.err.println(<span class="code-string">"读取失败: "</span> + e.getMessage());
+        }
+    }
+}</pre>
+
+  <h2>受检异常 vs 非受检异常</h2>
+  <table>
+    <tr><th>类别</th><th>说明</th><th>示例</th></tr>
+    <tr><td>受检异常 (Checked)</td><td>必须处理或声明抛出</td><td><code>IOException</code>, <code>SQLException</code></td></tr>
+    <tr><td>非受检异常 (Unchecked)</td><td>运行时异常，可忽略</td><td><code>NullPointerException</code>, <code>IllegalArgumentException</code></td></tr>
+  </table>
+
+  <pre><span class="code-comment">// 受检异常 — 编译器要求处理</span>
+<span class="code-keyword">public void</span> readFile(String path) <span class="code-keyword">throws</span> IOException {
+    <span class="code-comment">// Files.readString (Java 11+) 更简洁</span>
+    String content = <span class="code-keyword">new</span> String(Files.readAllBytes(Paths.get(path)));
+}
+
+<span class="code-comment">// 非受检异常 — 无需声明</span>
+<span class="code-keyword">public void</span> setAge(<span class="code-keyword">int</span> age) {
+    <span class="code-keyword">if</span> (age &lt; 0)
+        <span class="code-keyword">throw new</span> IllegalArgumentException(<span class="code-string">"年龄不能为负"</span>);
+}</pre>
+
+  <h2>自定义异常</h2>
+
+  <pre><span class="code-comment">// 自定义受检异常</span>
+<span class="code-keyword">public class</span> <span class="code-type">InsufficientFundsException</span> <span class="code-keyword">extends</span> Exception {
+    <span class="code-keyword">public</span> InsufficientFundsException(String message) {
+        <span class="code-keyword">super</span>(message);
+    }
+}
+
+<span class="code-comment">// 使用</span>
+<span class="code-keyword">public void</span> withdraw(<span class="code-keyword">double</span> amount) <span class="code-keyword">throws</span> InsufficientFundsException {
+    <span class="code-keyword">if</span> (amount &gt; balance)
+        <span class="code-keyword">throw new</span> InsufficientFundsException(<span class="code-string">"余额不足"</span>);
+    balance -= amount;
+}</pre>
+
+  <div class="info-box">
+    <strong>💡 最佳实践</strong>
+    <ul>
+      <li>用异常处理异常情况，不要用于流程控制</li>
+      <li><code>catch</code> 最具体的异常类型，避免笼统地捕获 <code>Exception</code></li>
+      <li>优先使用 try-with-resources 管理资源</li>
+      <li>记录或重新抛出异常，不要吞掉</li>
+    </ul>
+  </div>
+
+  <div class="page-nav">
+    <a href="oop.html">← 类与对象</a>
+    <a href="generics.html">泛型 →</a>
+  </div>
+</main>
+
+<script src="../js/main.js"></script>
+</body>
+</html>

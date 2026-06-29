@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>日期与时间 API — Java 入门教程</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <a href="../index.html"><span class="logo-icon">☕</span> Java 教程</a>
+  </div>
+  <ul class="sidebar-nav">
+    <li><a href="../index.html">🏠 首页</a></li>
+    <li class="nav-section">基础入门</li>
+    <li><a href="basics.html">变量与数据类型</a></li>
+    <li><a href="control-flow.html">流程控制</a></li>
+    <li><a href="oop.html">类与对象</a></li>
+    <li><a href="exceptions.html">异常处理</a></li>
+    <li><a href="generics.html">泛型</a></li>
+    <li class="nav-section">进阶提高</li>
+    <li><a href="collections.html">集合框架</a></li>
+    <li><a href="datetime.html" class="active">日期与时间</a></li>
+    <li><a href="streams.html">Lambda 与 Stream</a></li>
+    <li><a href="concurrency.html">多线程与并发</a></li>
+    <li><a href="advanced.html">注解 / IO / 反射</a></li>
+    <li class="nav-section">高阶实战</li>
+    <li><a href="maven.html">Maven 构建</a></li>
+    <li><a href="springboot.html">Spring Boot</a></li>
+    <li><a href="database.html">数据库访问</a></li>
+    <li><a href="restapi.html">REST API</a></li>
+    <li><a href="testing.html">单元测试</a></li>
+    <li><a href="logging.html">日志与配置</a></li>
+  </ul>
+</aside>
+
+<main class="main">
+  <h1><span class="emoji">📅</span> 日期与时间 API</h1>
+
+  <p>Java 8 引入全新的 <code>java.time</code> 包，解决旧版 <code>Date</code> / <code>Calendar</code> 设计缺陷。新 API 不可变、线程安全、语义清晰。</p>
+
+  <h2>LocalDate / LocalTime / LocalDateTime</h2>
+
+  <pre><span class="code-keyword">import</span> java.time.*;
+
+<span class="code-comment">// 当前日期</span>
+LocalDate today = LocalDate.now();                     <span class="code-comment">// 2026-06-29</span>
+LocalDate specific = LocalDate.of(2026, 6, 29);
+
+<span class="code-comment">// 当前时间</span>
+LocalTime now = LocalTime.now();                       <span class="code-comment">// 14:30:00.123</span>
+LocalTime noon = LocalTime.of(12, 0);
+
+<span class="code-comment">// 日期 + 时间</span>
+LocalDateTime dt = LocalDateTime.now();                <span class="code-comment">// 2026-06-29T14:30</span>
+LocalDateTime meeting = LocalDateTime.of(2026, 6, 29, 14, 30);
+
+System.out.println(today.plusDays(7));                 <span class="code-comment">// 2026-07-06</span>
+System.out.println(today.minusMonths(1));              <span class="code-comment">// 2026-05-29</span>
+System.out.println(dt.getDayOfWeek());                 <span class="code-comment">// MONDAY</span>
+System.out.println(dt.getDayOfYear());                 <span class="code-comment">// 180</span></pre>
+
+  <h2>日期计算与比较</h2>
+
+  <pre>LocalDate start = LocalDate.of(2026, 1, 1);
+LocalDate end = LocalDate.of(2026, 12, 31);
+
+Period period = Period.between(start, end);
+System.out.println(period.getMonths());   <span class="code-comment">// 11（月差）</span>
+System.out.println(period.getDays());     <span class="code-comment">// 30</span>
+
+<span class="code-comment">// 精确时间差</span>
+Duration duration = Duration.between(
+    LocalDateTime.of(2026, 1, 1, 0, 0),
+    LocalDateTime.of(2026, 1, 2, 12, 0));
+System.out.println(duration.toHours());   <span class="code-comment">// 36</span>
+
+<span class="code-comment">// 比较</span>
+System.out.println(start.isBefore(end));  <span class="code-comment">// true</span>
+System.out.println(start.isLeapYear());   <span class="code-comment">// false</span></pre>
+
+  <h2>格式化与解析</h2>
+
+  <pre><span class="code-keyword">import</span> java.time.format.DateTimeFormatter;
+
+LocalDate date = LocalDate.now();
+DateTimeFormatter fmt = DateTimeFormatter.ofPattern(<span class="code-string">"yyyy/MM/dd"</span>);
+System.out.println(date.format(fmt));               <span class="code-comment">// 2026/06/29</span>
+
+<span class="code-comment">// 解析字符串</span>
+LocalDate parsed = LocalDate.parse(<span class="code-string">"2026-06-29"</span>);        <span class="code-comment">// ISO 格式默认支持</span>
+LocalDate custom = LocalDate.parse(<span class="code-string">"2026/06/29"</span>, fmt);
+
+<span class="code-comment">// 常用格式</span>
+System.out.println(DateTimeFormatter.ISO_LOCAL_DATE);                     <span class="code-comment">// 2026-06-29</span>
+System.out.println(DateTimeFormatter.ISO_LOCAL_DATE_TIME);                <span class="code-comment">// 2026-06-29T14:30:00</span>
+System.out.println(DateTimeFormatter.ofPattern(<span class="code-string">"yyyy-MM-dd HH:mm:ss"</span>));   <span class="code-comment">// 自定义</span></pre>
+
+  <h2>时区处理</h2>
+
+  <pre><span class="code-keyword">import</span> java.time.*;
+
+<span class="code-comment">// ZonedDateTime — 带时区的日期时间</span>
+ZonedDateTime zdt = ZonedDateTime.now(ZoneId.of(<span class="code-string">"Asia/Shanghai"</span>));
+System.out.println(zdt);   <span class="code-comment">// 2026-06-29T14:30+08:00[Asia/Shanghai]</span>
+
+<span class="code-comment">// 时区转换</span>
+ZonedDateTime ny = zdt.withZoneSameInstant(ZoneId.of(<span class="code-string">"America/New_York"</span>));
+System.out.println(ny);    <span class="code-comment">// 2026-06-29T02:30-04:00[America/New_York]</span>
+
+<span class="code-comment">// OffsetDateTime — 固定偏移</span>
+OffsetDateTime odt = OffsetDateTime.now(ZoneOffset.ofHours(8));
+
+<span class="code-comment">// 所有可用时区</span>
+ZoneId.getAvailableZoneIds().stream()
+    .filter(id -> id.contains(<span class="code-string">"Asia"</span>))
+    .forEach(System.out::println);</pre>
+
+  <h2>与旧 API 互操作</h2>
+
+  <pre><span class="code-comment">// Date → Instant → LocalDateTime</span>
+<span class="code-keyword">import</span> java.util.Date;
+
+Date old = <span class="code-keyword">new</span> Date();
+Instant instant = old.toInstant();
+LocalDateTime ldt = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+
+<span class="code-comment">// LocalDateTime → Date</span>
+LocalDateTime now = LocalDateTime.now();
+Date date = Date.from(now.atZone(ZoneId.systemDefault()).toInstant());
+
+<span class="code-comment">// SQL 日期</span>
+LocalDate ld = LocalDate.now();
+java.sql.Date sqlDate = java.sql.Date.valueOf(ld);</pre>
+
+  <div class="info-box">
+    <strong>💡 java.time 最佳实践</strong>
+    <ul>
+      <li>业务代码优先用 <code>LocalDate</code> / <code>LocalDateTime</code>，不要用旧 <code>Date</code></li>
+      <li>API 传输用 ISO 8601 字符串（<code>2026-06-29T14:30:00Z</code>）</li>
+      <li>Jackson 配置 <code>jackson-datatype-jsr310</code> 序列化 <code>java.time</code></li>
+      <li>数据库新驱动（JDBC 4.2+）直接支持 <code>LocalDate</code> / <code>LocalDateTime</code></li>
+    </ul>
+  </div>
+
+  <div class="page-nav">
+    <a href="collections.html">← 集合框架</a>
+    <a href="streams.html">Lambda 与 Stream →</a>
+  </div>
+</main>
+
+<script src="../js/main.js"></script>
+</body>
+</html>

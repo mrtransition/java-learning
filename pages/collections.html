@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>集合框架 — Java 入门教程</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <a href="../index.html"><span class="logo-icon">☕</span> Java 教程</a>
+  </div>
+  <ul class="sidebar-nav">
+    <li><a href="../index.html">🏠 首页</a></li>
+    <li class="nav-section">基础入门</li>
+    <li><a href="basics.html">变量与数据类型</a></li>
+    <li><a href="control-flow.html">流程控制</a></li>
+    <li><a href="oop.html">类与对象</a></li>
+    <li><a href="exceptions.html">异常处理</a></li>
+    <li><a href="generics.html">泛型</a></li>
+    <li class="nav-section">进阶提高</li>
+    <li><a href="collections.html" class="active">集合框架</a></li>
+    <li><a href="datetime.html">日期与时间</a></li>
+    <li><a href="streams.html">Lambda 与 Stream</a></li>
+    <li><a href="concurrency.html">多线程与并发</a></li>
+    <li><a href="advanced.html">注解 / IO / 反射</a></li>
+    <li class="nav-section">高阶实战</li>
+    <li><a href="maven.html">Maven 构建</a></li>
+    <li><a href="springboot.html">Spring Boot</a></li>
+    <li><a href="database.html">数据库访问</a></li>
+    <li><a href="restapi.html">REST API</a></li>
+    <li><a href="testing.html">单元测试</a></li>
+    <li><a href="logging.html">日志与配置</a></li>
+  </ul>
+</aside>
+
+<main class="main">
+  <h1><span class="emoji">📦</span> 集合框架</h1>
+
+  <p>Java Collections Framework 提供了一套统一的接口和实现类。核心接口：</p>
+  <table>
+    <tr><th>接口</th><th>特点</th><th>常用实现</th></tr>
+    <tr><td>List</td><td>有序、可重复</td><td>ArrayList, LinkedList</td></tr>
+    <tr><td>Set</td><td>不可重复</td><td>HashSet, TreeSet, LinkedHashSet</td></tr>
+    <tr><td>Map</td><td>键值对</td><td>HashMap, TreeMap, LinkedHashMap</td></tr>
+    <tr><td>Queue</td><td>队列（FIFO）</td><td>ArrayDeque, LinkedList</td></tr>
+  </table>
+
+  <h2>List</h2>
+
+  <pre>List&lt;String&gt; fruits = <span class="code-keyword">new</span> ArrayList&lt;&gt;();
+
+fruits.add(<span class="code-string">"Apple"</span>);
+fruits.add(<span class="code-string">"Banana"</span>);
+fruits.add(<span class="code-string">"Cherry"</span>);
+fruits.add(<span class="code-string">"Apple"</span>);    <span class="code-comment">// List 允许重复</span>
+
+System.out.println(fruits.get(0));        <span class="code-comment">// Apple</span>
+System.out.println(fruits.size());         <span class="code-comment">// 4</span>
+System.out.println(fruits.contains(<span class="code-string">"Banana"</span>));  <span class="code-comment">// true</span>
+
+<span class="code-comment">// 遍历</span>
+<span class="code-keyword">for</span> (String fruit : fruits) {
+    System.out.println(fruit);
+}</pre>
+
+  <h2>Set</h2>
+
+  <pre>Set&lt;Integer&gt; numbers = <span class="code-keyword">new</span> HashSet&lt;&gt;();
+
+numbers.add(3);
+numbers.add(1);
+numbers.add(2);
+numbers.add(3);   <span class="code-comment">// 重复元素被忽略</span>
+
+System.out.println(numbers.size());     <span class="code-comment">// 3</span>
+System.out.println(numbers.contains(2));  <span class="code-comment">// true</span>
+
+<span class="code-comment">// HashSet 无序，如需有序：</span>
+Set&lt;Integer&gt; sorted = <span class="code-keyword">new</span> TreeSet&lt;&gt;(numbers);
+Set&lt;Integer&gt; insertionOrder = <span class="code-keyword">new</span> LinkedHashSet&lt;&gt;(numbers);</pre>
+
+  <h2>Map</h2>
+
+  <pre>Map&lt;String, Integer&gt; scores = <span class="code-keyword">new</span> HashMap&lt;&gt;();
+
+scores.put(<span class="code-string">"Alice"</span>, 95);
+scores.put(<span class="code-string">"Bob"</span>, 87);
+scores.put(<span class="code-string">"Charlie"</span>, 92);
+
+System.out.println(scores.get(<span class="code-string">"Alice"</span>));       <span class="code-comment">// 95</span>
+System.out.println(scores.getOrDefault(<span class="code-string">"David"</span>, 0));  <span class="code-comment">// 0</span>
+
+<span class="code-comment">// 遍历</span>
+<span class="code-keyword">for</span> (Map.Entry&lt;String, Integer&gt; entry : scores.entrySet()) {
+    System.out.println(entry.getKey() + <span class="code-string">": "</span> + entry.getValue());
+}
+
+<span class="code-comment">// Java 8+ 便捷方法</span>
+scores.merge(<span class="code-string">"Bob"</span>, 5, Integer::sum);  <span class="code-comment">// Bob 变为 92</span>
+scores.computeIfAbsent(<span class="code-string">"Eve"</span>, k -> 88);  <span class="code-comment">// 键不存在时计算</span></pre>
+
+  <h2>Collections 工具类</h2>
+
+  <pre>List&lt;String&gt; list = <span class="code-keyword">new</span> ArrayList&lt;&gt;(Arrays.asList(<span class="code-string">"c"</span>, <span class="code-string">"a"</span>, <span class="code-string">"b"</span>));
+
+Collections.sort(list);              <span class="code-comment">// [a, b, c]</span>
+Collections.reverse(list);           <span class="code-comment">// [c, b, a]</span>
+Collections.shuffle(list);           <span class="code-comment">// 随机打乱</span>
+
+List&lt;String&gt; immutable = Collections.unmodifiableList(list);
+<span class="code-comment">// immutable.add("x");  // ❌ 运行时异常</span>
+
+<span class="code-comment">// List.of / Set.of / Map.of (Java 9+) 创建不可变集合</span>
+List&lt;String&gt; fixed = Collections.unmodifiableList(
+    Arrays.asList(<span class="code-string">"x"</span>, <span class="code-string">"y"</span>, <span class="code-string">"z"</span>));
+Set&lt;Integer&gt; nums = Collections.unmodifiableSet(
+    <span class="code-keyword">new</span> HashSet&lt;&gt;(Arrays.asList(1, 2, 3)));
+Map&lt;String, Integer&gt; ages = <span class="code-keyword">new</span> HashMap&lt;&gt;();
+ages.put(<span class="code-string">"Alice"</span>, 30);
+ages.put(<span class="code-string">"Bob"</span>, 25);
+ages = Collections.unmodifiableMap(ages);</pre>
+
+  <div class="page-nav">
+    <a href="generics.html">← 泛型</a>
+    <a href="datetime.html">日期与时间 →</a>
+  </div>
+</main>
+
+<script src="../js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>数据库访问 — Java 入门教程</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <a href="../index.html"><span class="logo-icon">☕</span> Java 教程</a>
+  </div>
+  <ul class="sidebar-nav">
+    <li><a href="../index.html">🏠 首页</a></li>
+    <li class="nav-section">基础入门</li>
+    <li><a href="basics.html">变量与数据类型</a></li>
+    <li><a href="control-flow.html">流程控制</a></li>
+    <li><a href="oop.html">类与对象</a></li>
+    <li><a href="exceptions.html">异常处理</a></li>
+    <li><a href="generics.html">泛型</a></li>
+    <li class="nav-section">进阶提高</li>
+    <li><a href="collections.html">集合框架</a></li>
+    <li><a href="datetime.html">日期与时间</a></li>
+    <li><a href="streams.html">Lambda 与 Stream</a></li>
+    <li><a href="concurrency.html">多线程与并发</a></li>
+    <li><a href="advanced.html">注解 / IO / 反射</a></li>
+    <li class="nav-section">高阶实战</li>
+    <li><a href="maven.html">Maven 构建</a></li>
+    <li><a href="springboot.html">Spring Boot</a></li>
+    <li><a href="database.html" class="active">数据库访问</a></li>
+    <li><a href="restapi.html">REST API</a></li>
+    <li><a href="testing.html">单元测试</a></li>
+    <li><a href="logging.html">日志与配置</a></li>
+  </ul>
+</aside>
+
+<main class="main">
+  <h1><span class="emoji">🗄️</span> 数据库访问</h1>
+
+  <p>企业级应用几乎都需要数据库。Spring Boot 提供了 JPA 和 JDBC 两种主流方案。</p>
+
+  <h2>Spring Data JPA</h2>
+  <p>JPA 是 Java 官方的 ORM 规范，Spring Data JPA 是其最便捷的实现：</p>
+
+  <pre><span class="code-comment">// 1. 实体类</span>
+<span class="code-meta">@Entity</span>
+<span class="code-meta">@Table</span>(name = <span class="code-string">"users"</span>)
+<span class="code-keyword">public class</span> <span class="code-type">User</span> {
+    <span class="code-meta">@Id</span>
+    <span class="code-meta">@GeneratedValue</span>(strategy = GenerationType.IDENTITY)
+    <span class="code-keyword">private</span> Long id;
+
+    <span class="code-meta">@NotBlank</span>
+    <span class="code-keyword">private</span> String name;
+
+    <span class="code-meta">@Email</span>
+    <span class="code-keyword">private</span> String email;
+
+    <span class="code-comment">// getter / setter（必写）</span>
+}
+
+<span class="code-comment">// 2. Repository 接口 — 无需实现类</span>
+<span class="code-keyword">public interface</span> <span class="code-type">UserRepository</span> <span class="code-keyword">extends</span> JpaRepository&lt;User, Long&gt; {
+    <span class="code-comment">// 根据方法名自动生成查询</span>
+    List&lt;User&gt; findByName(String name);
+    Optional&lt;User&gt; findByEmail(String email);
+    List&lt;User&gt; findByNameContainingIgnoreCase(String keyword);
+    <span class="code-keyword">boolean</span> existsByEmail(String email);
+
+    <span class="code-comment">// 自定义 JPQL</span>
+    <span class="code-meta">@Query</span>(<span class="code-string">"SELECT u FROM User u WHERE u.email LIKE %:domain"</span>)
+    List&lt;User&gt; findByEmailDomain(<span class="code-meta">@Param</span>(<span class="code-string">"domain"</span>) String domain);
+
+    <span class="code-comment">// 原生 SQL 查询</span>
+    <span class="code-meta">@Query</span>(value = <span class="code-string">"SELECT * FROM users WHERE age &gt; :min"</span>,
+           nativeQuery = <span class="code-keyword">true</span>)
+    List&lt;User&gt; findByAgeGreaterThan(<span class="code-meta">@Param</span>(<span class="code-string">"min"</span>) <span class="code-keyword">int</span> min);
+}
+
+<span class="code-comment">// 3. 使用</span>
+<span class="code-meta">@Service</span>
+<span class="code-keyword">public class</span> <span class="code-type">UserService</span> {
+    <span class="code-keyword">private final</span> UserRepository repository;
+
+    <span class="code-keyword">public</span> UserService(UserRepository repository) {
+        <span class="code-keyword">this</span>.repository = repository;
+    }
+
+    <span class="code-keyword">public</span> User createUser(User user) {
+        <span class="code-keyword">return</span> repository.save(user);
+    }
+
+    <span class="code-keyword">public</span> List&lt;User&gt; searchByName(String name) {
+        <span class="code-keyword">return</span> repository.findByNameContainingIgnoreCase(name);
+    }
+}</pre>
+
+  <h2>方法命名查询规范</h2>
+  <p>Spring Data JPA 根据方法名自动生成 SQL，常用关键字：</p>
+
+  <table>
+    <tr><th>关键字</th><th>示例</th><th>对应 SQL</th></tr>
+    <tr><td>findBy</td><td>findByName</td><td>WHERE name = ?</td></tr>
+    <tr><td>findBy...Containing</td><td>findByNameContaining</td><td>WHERE name LIKE %?%</td></tr>
+    <tr><td>findBy...Between</td><td>findByAgeBetween</td><td>WHERE age BETWEEN ? AND ?</td></tr>
+    <tr><td>findBy...OrderBy</td><td>findByAgeOrderByNameDesc</td><td>ORDER BY name DESC</td></tr>
+    <tr><td>countBy</td><td>countByStatus</td><td>SELECT COUNT(*) ...</td></tr>
+    <tr><td>deleteBy</td><td>deleteByName</td><td>DELETE FROM ...</td></tr>
+    <tr><td>existsBy</td><td>existsByEmail</td><td>SELECT EXISTS(...)</td></tr>
+  </table>
+
+  <h2>实体关系映射</h2>
+
+  <pre><span class="code-meta">@Entity</span>
+<span class="code-keyword">public class</span> <span class="code-type">Order</span> {
+    <span class="code-meta">@Id</span> <span class="code-meta">@GeneratedValue</span> <span class="code-keyword">private</span> Long id;
+
+    <span class="code-meta">@ManyToOne</span>(fetch = FetchType.LAZY)   <span class="code-comment">// 多对一，延迟加载</span>
+    <span class="code-meta">@JoinColumn</span>(name = <span class="code-string">"user_id"</span>)
+    <span class="code-keyword">private</span> User user;
+
+    <span class="code-meta">@OneToMany</span>(mappedBy = <span class="code-string">"order"</span>, cascade = CascadeType.ALL, orphanRemoval = <span class="code-keyword">true</span>)
+    <span class="code-keyword">private</span> List&lt;OrderItem&gt; items;
+
+    <span class="code-meta">@Enumerated</span>(EnumType.STRING)
+    <span class="code-keyword">private</span> OrderStatus status;
+}
+
+<span class="code-keyword">public enum</span> <span class="code-type">OrderStatus</span> { PENDING, PAID, SHIPPED, DELIVERED, CANCELLED }</pre>
+
+  <h2>事务管理</h2>
+
+  <pre><span class="code-meta">@Service</span>
+<span class="code-keyword">public class</span> <span class="code-type">PaymentService</span> {
+    <span class="code-meta">@Transactional</span>  <span class="code-comment">// 失败时自动回滚</span>
+    <span class="code-keyword">public void</span> transfer(Long fromId, Long toId, <span class="code-keyword">double</span> amount) {
+        Account from = accountRepo.findById(fromId).orElseThrow();
+        Account to = accountRepo.findById(toId).orElseThrow();
+        from.withdraw(amount);
+        to.deposit(amount);
+        <span class="code-comment">// 任意一步抛异常，全部回滚</span>
+    }
+
+    <span class="code-meta">@Transactional</span>(readOnly = <span class="code-keyword">true</span>)  <span class="code-comment">// 只读事务优化</span>
+    <span class="code-keyword">public</span> Account getAccount(Long id) {
+        <span class="code-keyword">return</span> accountRepo.findById(id).orElseThrow();
+    }
+}</pre>
+
+  <h2>Flyway — 数据库版本管理</h2>
+
+  <pre><span class="code-comment">&lt;!-- pom.xml --&gt;</span>
+&lt;dependency&gt;
+    &lt;groupId&gt;org.flywaydb&lt;/groupId&gt;
+    &lt;artifactId&gt;flyway-core&lt;/artifactId&gt;
+&lt;/dependency&gt;
+
+<span class="code-comment">// application.yml</span>
+spring:
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+<span class="code-comment">// src/main/resources/db/migration/V1__create_users.sql</span>
+<span class="code-keyword">CREATE TABLE</span> users (
+    id    BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name  VARCHAR(100) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE
+);
+
+<span class="code-comment">// V2__add_age_column.sql</span>
+<span class="code-keyword">ALTER TABLE</span> users ADD COLUMN age INT;</pre>
+
+  <div class="info-box">
+    <strong>💡 JPA 最佳实践</strong>
+    <ul>
+      <li>所有关联使用 <code>FetchType.LAZY</code>，避免 N+1 问题</li>
+      <li>实体类必须写 <code>equals()</code> 和 <code>hashCode()</code>（用 ID 实现）</li>
+      <li>生产环境 <code>ddl-auto</code> 设为 <code>validate</code> 或 <code>none</code>，用 Flyway 管理 DDL</li>
+      <li>复杂查询用 <code>@Query</code> + JPQL，避免过长的 find 方法名</li>
+    </ul>
+  </div>
+
+  <div class="page-nav">
+    <a href="springboot.html">← Spring Boot</a>
+    <a href="restapi.html">REST API →</a>
+  </div>
+</main>
+
+<script src="../js/main.js"></script>
+</body>
+</html>

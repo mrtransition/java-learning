@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>REST API 设计 — Java 入门教程</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <a href="../index.html"><span class="logo-icon">☕</span> Java 教程</a>
+  </div>
+  <ul class="sidebar-nav">
+    <li><a href="../index.html">🏠 首页</a></li>
+    <li class="nav-section">基础入门</li>
+    <li><a href="basics.html">变量与数据类型</a></li>
+    <li><a href="control-flow.html">流程控制</a></li>
+    <li><a href="oop.html">类与对象</a></li>
+    <li><a href="exceptions.html">异常处理</a></li>
+    <li><a href="generics.html">泛型</a></li>
+    <li class="nav-section">进阶提高</li>
+    <li><a href="collections.html">集合框架</a></li>
+    <li><a href="datetime.html">日期与时间</a></li>
+    <li><a href="streams.html">Lambda 与 Stream</a></li>
+    <li><a href="concurrency.html">多线程与并发</a></li>
+    <li><a href="advanced.html">注解 / IO / 反射</a></li>
+    <li class="nav-section">高阶实战</li>
+    <li><a href="maven.html">Maven 构建</a></li>
+    <li><a href="springboot.html">Spring Boot</a></li>
+    <li><a href="database.html">数据库访问</a></li>
+    <li><a href="restapi.html" class="active">REST API</a></li>
+    <li><a href="testing.html">单元测试</a></li>
+    <li><a href="logging.html">日志与配置</a></li>
+  </ul>
+</aside>
+
+<main class="main">
+  <h1><span class="emoji">🌐</span> REST API 设计</h1>
+
+  <p>REST API 是企业应用对外交互的核心方式。一个好的 API 设计直接影响系统的可维护性和使用体验。</p>
+
+  <h2>RESTful 资源命名规范</h2>
+
+  <table>
+    <tr><th>HTTP 方法</th><th>路径</th><th>说明</th></tr>
+    <tr><td>GET</td><td>/api/users</td><td>获取用户列表</td></tr>
+    <tr><td>GET</td><td>/api/users/{id}</td><td>获取单个用户</td></tr>
+    <tr><td>POST</td><td>/api/users</td><td>创建用户</td></tr>
+    <tr><td>PUT</td><td>/api/users/{id}</td><td>全量更新用户</td></tr>
+    <tr><td>PATCH</td><td>/api/users/{id}</td><td>部分更新用户</td></tr>
+    <tr><td>DELETE</td><td>/api/users/{id}</td><td>删除用户</td></tr>
+  </table>
+
+  <ul>
+    <li>资源名使用复数名词：<code>/users</code> 而非 <code>/user</code></li>
+    <li>子资源用嵌套：<code>/users/{id}/orders</code></li>
+    <li>操作转译为资源：<code>/POST /payments</code> 而非 <code>/POST /pay</code></li>
+    <li>版本号放路径或请求头：<code>/api/v1/users</code></li>
+  </ul>
+
+  <h2>完整 CRUD Controller</h2>
+
+  <pre><span class="code-meta">@RestController</span>
+<span class="code-meta">@RequestMapping</span>(<span class="code-string">"/api/v1/users"</span>)
+<span class="code-keyword">public class</span> <span class="code-type">UserController</span> {
+
+    <span class="code-keyword">private final</span> UserService userService;
+
+    <span class="code-keyword">public</span> UserController(UserService userService) {
+        <span class="code-keyword">this</span>.userService = userService;
+    }
+
+    <span class="code-meta">@GetMapping</span>
+    <span class="code-keyword">public</span> List&lt;User&gt; list(<span class="code-meta">@RequestParam</span>(defaultValue = <span class="code-string">"0"</span>) <span class="code-keyword">int</span> page,
+                          <span class="code-meta">@RequestParam</span>(defaultValue = <span class="code-string">"20"</span>) <span class="code-keyword">int</span> size) {
+        <span class="code-keyword">return</span> userService.findAll(PageRequest.of(page, size));
+    }
+
+    <span class="code-meta">@GetMapping</span>(<span class="code-string">"/{id}"</span>)
+    <span class="code-keyword">public</span> ResponseEntity&lt;User&gt; getById(<span class="code-meta">@PathVariable</span> Long id) {
+        <span class="code-keyword">return</span> ResponseEntity.ok(userService.findById(id));
+    }
+
+    <span class="code-meta">@PostMapping</span>
+    <span class="code-keyword">public</span> ResponseEntity&lt;User&gt; create(<span class="code-meta">@Valid</span> <span class="code-meta">@RequestBody</span> User user) {
+        User created = userService.create(user);
+        URI location = URI.create(<span class="code-string">"/api/v1/users/"</span> + created.getId());
+        <span class="code-keyword">return</span> ResponseEntity.created(location).body(created);
+    }
+
+    <span class="code-meta">@PutMapping</span>(<span class="code-string">"/{id}"</span>)
+    <span class="code-keyword">public</span> ResponseEntity&lt;User&gt; update(<span class="code-meta">@PathVariable</span> Long id,
+                                       <span class="code-meta">@Valid</span> <span class="code-meta">@RequestBody</span> User user) {
+        <span class="code-keyword">return</span> ResponseEntity.ok(userService.update(id, user));
+    }
+
+    <span class="code-meta">@DeleteMapping</span>(<span class="code-string">"/{id}"</span>)
+    <span class="code-keyword">public</span> ResponseEntity&lt;Void&gt; delete(<span class="code-meta">@PathVariable</span> Long id) {
+        userService.delete(id);
+        <span class="code-keyword">return</span> ResponseEntity.noContent().build();
+    }
+}</pre>
+
+  <h2>统一响应与全局异常处理</h2>
+
+  <pre><span class="code-comment">// 统一响应包装</span>
+<span class="code-keyword">public class</span> <span class="code-type">ApiResult</span>&lt;T&gt; {
+    <span class="code-keyword">private int</span> code;
+    <span class="code-keyword">private</span> String message;
+    <span class="code-keyword">private</span> T data;
+
+    <span class="code-keyword">public static</span> &lt;T&gt; ApiResult&lt;T&gt; success(T data) {
+        ApiResult&lt;T&gt; r = <span class="code-keyword">new</span> ApiResult&lt;&gt;();
+        r.code = 200; r.message = <span class="code-string">"success"</span>; r.data = data;
+        <span class="code-keyword">return</span> r;
+    }
+
+    <span class="code-keyword">public static</span> &lt;T&gt; ApiResult&lt;T&gt; error(<span class="code-keyword">int</span> code, String msg) {
+        ApiResult&lt;T&gt; r = <span class="code-keyword">new</span> ApiResult&lt;&gt;();
+        r.code = code; r.message = msg;
+        <span class="code-keyword">return</span> r;
+    }
+}
+
+<span class="code-comment">// 全局异常处理</span>
+<span class="code-meta">@RestControllerAdvice</span>
+<span class="code-keyword">public class</span> <span class="code-type">GlobalExceptionHandler</span> {
+
+    <span class="code-meta">@ExceptionHandler</span>(ResourceNotFoundException.class)
+    <span class="code-keyword">public</span> ResponseEntity&lt;ApiResult&lt;Void&gt;&gt; handleNotFound(ResourceNotFoundException e) {
+        <span class="code-keyword">return</span> ResponseEntity.status(404)
+                .body(ApiResult.error(404, e.getMessage()));
+    }
+
+    <span class="code-meta">@ExceptionHandler</span>(MethodArgumentNotValidException.class)
+    <span class="code-keyword">public</span> ResponseEntity&lt;ApiResult&lt;Void&gt;&gt; handleValidation(MethodArgumentNotValidException e) {
+        String msg = e.getBindingResult().getFieldErrors().stream()
+                .map(err -&gt; err.getField() + <span class="code-string">": "</span> + err.getDefaultMessage())
+                .collect(Collectors.joining(<span class="code-string">"; "</span>));
+        <span class="code-keyword">return</span> ResponseEntity.badRequest()
+                .body(ApiResult.error(400, msg));
+    }
+}</pre>
+
+  <h2>请求参数注解</h2>
+
+  <table>
+    <tr><th>注解</th><th>来源</th><th>示例</th></tr>
+    <tr><td>@PathVariable</td><td>路径参数</td><td><code>/users/{id}</code></td></tr>
+    <tr><td>@RequestParam</td><td>查询参数</td><td><code>?page=0&size=20</code></td></tr>
+    <tr><td>@RequestBody</td><td>请求体 JSON</td><td><code>POST</code>/<code>PUT</code> 请求体</td></tr>
+    <tr><td>@RequestHeader</td><td>请求头</td><td><code>Authorization: Bearer xxx</code></td></tr>
+    <tr><td>@CookieValue</td><td>Cookie</td><td>从 Cookie 中取值</td></tr>
+  </table>
+
+  <h2>参数校验</h2>
+
+  <pre><span class="code-meta">@Data</span>
+<span class="code-keyword">public class</span> <span class="code-type">CreateUserRequest</span> {
+    <span class="code-meta">@NotBlank</span>(message = <span class="code-string">"用户名不能为空"</span>)
+    <span class="code-meta">@Size</span>(min = 2, max = 50)
+    <span class="code-keyword">private</span> String name;
+
+    <span class="code-meta">@NotBlank</span>
+    <span class="code-meta">@Email</span>(message = <span class="code-string">"邮箱格式不正确"</span>)
+    <span class="code-keyword">private</span> String email;
+
+    <span class="code-meta">@Min</span>(18) <span class="code-meta">@Max</span>(150)
+    <span class="code-keyword">private int</span> age;
+
+    <span class="code-meta">@Pattern</span>(regexp = <span class="code-string">"^1[3-9]\\d{9}$"</span>, message = <span class="code-string">"手机号格式错误"</span>)
+    <span class="code-keyword">private</span> String phone;
+}
+
+<span class="code-comment">// 分组校验（不同场景不同规则）</span>
+<span class="code-keyword">public interface</span> CreateGroup {}
+<span class="code-keyword">public interface</span> UpdateGroup {}
+
+<span class="code-keyword">public class</span> <span class="code-type">UserRequest</span> {
+    <span class="code-meta">@Null</span>(groups = CreateGroup.class)
+    <span class="code-meta">@NotNull</span>(groups = UpdateGroup.class)
+    <span class="code-keyword">private</span> Long id;
+
+    <span class="code-meta">@NotBlank</span>(groups = CreateGroup.class)
+    <span class="code-keyword">private</span> String name;
+}
+
+<span class="code-comment">// Controller 中指定分组：</span>
+<span class="code-comment">// public ResponseEntity&lt;User&gt; create(@Validated(CreateGroup.class) @RequestBody UserRequest req)</span></pre>
+
+  <div class="info-box">
+    <strong>💡 REST API 最佳实践</strong>
+    <ul>
+      <li>使用 <code>ResponseEntity.created(location)</code> 返回 201 + Location 头</li>
+      <li>不要直接暴露实体类——用 DTO（数据传输对象）解耦</li>
+      <li>分页参数统一使用 <code>page</code>（从 0 开始）+ <code>size</code></li>
+      <li>敏感信息（密码、身份证）在序列化时用 <code>@JsonIgnore</code></li>
+      <li>全局异常处理避免堆栈泄露到客户端</li>
+    </ul>
+  </div>
+
+  <div class="page-nav">
+    <a href="database.html">← 数据库访问</a>
+    <a href="testing.html">单元测试 →</a>
+  </div>
+</main>
+
+<script src="../js/main.js"></script>
+</body>
+</html>

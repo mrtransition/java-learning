@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>变量与数据类型 — Java 入门教程</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <a href="../index.html"><span class="logo-icon">☕</span> Java 教程</a>
+  </div>
+  <ul class="sidebar-nav">
+    <li><a href="../index.html">🏠 首页</a></li>
+    <li class="nav-section">基础入门</li>
+    <li><a href="basics.html" class="active">变量与数据类型</a></li>
+    <li><a href="control-flow.html">流程控制</a></li>
+    <li><a href="oop.html">类与对象</a></li>
+    <li><a href="exceptions.html">异常处理</a></li>
+    <li><a href="generics.html">泛型</a></li>
+    <li class="nav-section">进阶提高</li>
+    <li><a href="collections.html">集合框架</a></li>
+    <li><a href="datetime.html">日期与时间</a></li>
+    <li><a href="streams.html">Lambda 与 Stream</a></li>
+    <li><a href="concurrency.html">多线程与并发</a></li>
+    <li><a href="advanced.html">注解 / IO / 反射</a></li>
+    <li class="nav-section">高阶实战</li>
+    <li><a href="maven.html">Maven 构建</a></li>
+    <li><a href="springboot.html">Spring Boot</a></li>
+    <li><a href="database.html">数据库访问</a></li>
+    <li><a href="restapi.html">REST API</a></li>
+    <li><a href="testing.html">单元测试</a></li>
+    <li><a href="logging.html">日志与配置</a></li>
+  </ul>
+</aside>
+
+<main class="main">
+  <h1><span class="emoji">🔤</span> 变量与数据类型</h1>
+
+  <h2>基本数据类型</h2>
+  <p>Java 有 8 种基本类型（primitive types）：</p>
+  <table>
+    <tr><th>类型</th><th>大小</th><th>范围/示例</th></tr>
+    <tr><td>byte</td><td>1 字节</td><td>-128 ~ 127</td></tr>
+    <tr><td>short</td><td>2 字节</td><td>-32,768 ~ 32,767</td></tr>
+    <tr><td>int</td><td>4 字节</td><td>-2³¹ ~ 2³¹-1</td></tr>
+    <tr><td>long</td><td>8 字节</td><td>结尾加 L：<code>100L</code></td></tr>
+    <tr><td>float</td><td>4 字节</td><td>结尾加 f：<code>3.14f</code></td></tr>
+    <tr><td>double</td><td>8 字节</td><td>默认小数类型：<code>3.14</code></td></tr>
+    <tr><td>char</td><td>2 字节</td><td>单个字符：<code>'A'</code></td></tr>
+    <tr><td>boolean</td><td>1 位</td><td><code>true</code> / <code>false</code></td></tr>
+  </table>
+
+  <pre><span class="code-keyword">public class</span> <span class="code-type">Basics</span> {
+    <span class="code-keyword">public static void</span> main(String[] args) {
+        <span class="code-comment">// 基本类型声明</span>
+        <span class="code-keyword">int</span> age = 25;
+        <span class="code-keyword">double</span> price = 19.99;
+        <span class="code-keyword">boolean</span> isActive = <span class="code-keyword">true</span>;
+        <span class="code-keyword">char</span> grade = <span class="code-string">'A'</span>;
+        <span class="code-keyword">long</span> population = 8_000_000_000L;
+
+        System.out.println(<span class="code-string">"Age: "</span> + age);
+        System.out.println(<span class="code-string">"Price: "</span> + price);
+        System.out.println(<span class="code-string">"Active: "</span> + isActive);
+    }
+}</pre>
+
+  <h2>引用类型与 String</h2>
+  <p>String 是 Java 中最常用的引用类型，不是基本类型。</p>
+
+  <pre><span class="code-keyword">public class</span> <span class="code-type">StringExample</span> {
+    <span class="code-keyword">public static void</span> main(String[] args) {
+        String name = <span class="code-string">"Java"</span>;
+        String greeting = <span class="code-string">"Hello, "</span> + name + <span class="code-string">"!"</span>;
+
+        <span class="code-comment">// 常用方法</span>
+        System.out.println(greeting);                 <span class="code-comment">// Hello, Java!</span>
+        System.out.println(name.length());            <span class="code-comment">// 4</span>
+        System.out.println(name.toUpperCase());       <span class="code-comment">// JAVA</span>
+        System.out.println(name.contains(<span class="code-string">"va"</span>));   <span class="code-comment">// true</span>
+        System.out.println(String.format(<span class="code-string">"值: %.2f"</span>, 3.14159));
+    }
+}</pre>
+
+  <h2>类型转换</h2>
+
+  <h3>自动转换（隐式）</h3>
+  <p>小范围类型可自动转为大范围类型：<code>byte → short → int → long → float → double</code></p>
+
+  <pre><span class="code-keyword">int</span> i = 100;
+<span class="code-keyword">long</span> l = i;      <span class="code-comment">// 自动转换</span>
+<span class="code-keyword">double</span> d = i;    <span class="code-comment">// 自动转换</span></pre>
+
+  <h3>强制转换（显式）</h3>
+  <p>大范围转小范围可能丢失精度：</p>
+
+  <pre><span class="code-keyword">double</span> pi = 3.14159;
+<span class="code-keyword">int</span> truncated = (<span class="code-keyword">int</span>) pi;  <span class="code-comment">// 3，小数部分被截断</span>
+
+<span class="code-keyword">long</span> big = 1_000_000_000_000L;
+<span class="code-keyword">int</span> small = (<span class="code-keyword">int</span>) big;    <span class="code-comment">// 溢出，结果不正确</span></pre>
+
+  <div class="info-box warn">
+    <strong>⚠️ 注意</strong>
+    强制类型转换可能导致数据溢出或精度丢失，使用前请确认值在目标类型范围内。
+  </div>
+
+  <h2>var 关键字（Java 10+）</h2>
+  <p>局部变量可用 <code>var</code> 让编译器推断类型：</p>
+
+  <pre><span class="code-keyword">var</span> message = <span class="code-string">"Hello"</span>;      <span class="code-comment">// 等同于 String message</span>
+<span class="code-keyword">var</span> count = 42;              <span class="code-comment">// 等同于 int count</span>
+<span class="code-keyword">var</span> list = <span class="code-keyword">new</span> ArrayList&lt;String&gt;();  <span class="code-comment">// ArrayList&lt;String&gt;</span>
+<span class="code-comment">// var x = null;           // ❌ 编译错误，无法推断类型</span></pre>
+
+  <div class="page-nav">
+    <span></span>
+    <a href="control-flow.html">流程控制 →</a>
+  </div>
+</main>
+
+<script src="../js/main.js"></script>
+</body>
+</html>

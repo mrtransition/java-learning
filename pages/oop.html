@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>类与对象 — Java 入门教程</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <a href="../index.html"><span class="logo-icon">☕</span> Java 教程</a>
+  </div>
+  <ul class="sidebar-nav">
+    <li><a href="../index.html">🏠 首页</a></li>
+    <li class="nav-section">基础入门</li>
+    <li><a href="basics.html">变量与数据类型</a></li>
+    <li><a href="control-flow.html">流程控制</a></li>
+    <li><a href="oop.html" class="active">类与对象</a></li>
+    <li><a href="exceptions.html">异常处理</a></li>
+    <li><a href="generics.html">泛型</a></li>
+    <li class="nav-section">进阶提高</li>
+    <li><a href="collections.html">集合框架</a></li>
+    <li><a href="datetime.html">日期与时间</a></li>
+    <li><a href="streams.html">Lambda 与 Stream</a></li>
+    <li><a href="concurrency.html">多线程与并发</a></li>
+    <li><a href="advanced.html">注解 / IO / 反射</a></li>
+    <li class="nav-section">高阶实战</li>
+    <li><a href="maven.html">Maven 构建</a></li>
+    <li><a href="springboot.html">Spring Boot</a></li>
+    <li><a href="database.html">数据库访问</a></li>
+    <li><a href="restapi.html">REST API</a></li>
+    <li><a href="testing.html">单元测试</a></li>
+    <li><a href="logging.html">日志与配置</a></li>
+  </ul>
+</aside>
+
+<main class="main">
+  <h1><span class="emoji">🏗️</span> 类与对象</h1>
+
+  <h2>定义类与创建对象</h2>
+
+  <pre><span class="code-keyword">public class</span> <span class="code-type">Car</span> {
+    <span class="code-comment">// 字段</span>
+    <span class="code-keyword">private</span> String brand;
+    <span class="code-keyword">private</span> <span class="code-keyword">int</span> year;
+
+    <span class="code-comment">// 构造方法</span>
+    <span class="code-keyword">public</span> Car(String brand, <span class="code-keyword">int</span> year) {
+        <span class="code-keyword">this</span>.brand = brand;
+        <span class="code-keyword">this</span>.year = year;
+    }
+
+    <span class="code-comment">// getter / setter</span>
+    <span class="code-keyword">public</span> String getBrand() { <span class="code-keyword">return</span> brand; }
+    <span class="code-keyword">public void</span> setBrand(String brand) { <span class="code-keyword">this</span>.brand = brand; }
+
+    <span class="code-comment">// 行为方法</span>
+    <span class="code-keyword">public void</span> honk() {
+        System.out.println(brand + <span class="code-string">" 鸣笛！"</span>);
+    }
+}
+
+<span class="code-comment">// 使用</span>
+Car myCar = <span class="code-keyword">new</span> Car(<span class="code-string">"Tesla"</span>, 2024);
+myCar.honk();              <span class="code-comment">// Tesla 鸣笛！</span>
+myCar.setBrand(<span class="code-string">"BMW"</span>);
+System.out.println(myCar.getBrand());  <span class="code-comment">// BMW</span></pre>
+
+  <h2>封装</h2>
+  <p>使用 <code>private</code> 隐藏实现细节，通过 <code>public</code> 方法暴露接口：</p>
+
+  <pre><span class="code-keyword">public class</span> <span class="code-type">BankAccount</span> {
+    <span class="code-keyword">private double</span> balance;   <span class="code-comment">// 外部不可直接访问</span>
+
+    <span class="code-keyword">public</span> BankAccount(<span class="code-keyword">double</span> initial) {
+        <span class="code-keyword">if</span> (initial >= 0)
+            <span class="code-keyword">this</span>.balance = initial;
+    }
+
+    <span class="code-keyword">public double</span> getBalance() { <span class="code-keyword">return</span> balance; }
+
+    <span class="code-keyword">public void</span> deposit(<span class="code-keyword">double</span> amount) {
+        <span class="code-keyword">if</span> (amount &gt; 0) balance += amount;
+    }
+
+    <span class="code-keyword">public boolean</span> withdraw(<span class="code-keyword">double</span> amount) {
+        <span class="code-keyword">if</span> (amount &gt; 0 &amp;&amp; amount &lt;= balance) {
+            balance -= amount;
+            <span class="code-keyword">return true</span>;
+        }
+        <span class="code-keyword">return false</span>;
+    }
+}</pre>
+
+  <h2>继承</h2>
+
+  <pre><span class="code-keyword">public class</span> <span class="code-type">Animal</span> {
+    <span class="code-keyword">protected</span> String name;
+
+    <span class="code-keyword">public</span> Animal(String name) { <span class="code-keyword">this</span>.name = name; }
+
+    <span class="code-keyword">public void</span> speak() {
+        System.out.println(name + <span class="code-string">" 发出声音"</span>);
+    }
+}
+
+<span class="code-keyword">public class</span> <span class="code-type">Dog</span> <span class="code-keyword">extends</span> <span class="code-type">Animal</span> {
+    <span class="code-keyword">public</span> Dog(String name) {
+        <span class="code-keyword">super</span>(name);     <span class="code-comment">// 调用父类构造方法</span>
+    }
+
+    <span class="code-meta">@Override</span>
+    <span class="code-keyword">public void</span> speak() {
+        System.out.println(name + <span class="code-string">" 汪汪！"</span>);
+    }
+}
+
+<span class="code-comment">// 使用</span>
+Animal a = <span class="code-keyword">new</span> Dog(<span class="code-string">"Buddy"</span>);
+a.speak();                     <span class="code-comment">// Buddy 汪汪！</span></pre>
+
+  <h2>接口</h2>
+  <p>接口定义契约，实现类必须实现所有抽象方法：</p>
+
+  <pre><span class="code-keyword">public interface</span> <span class="code-type">Flyable</span> {
+    <span class="code-keyword">void</span> fly();  <span class="code-comment">// 默认 public abstract</span>
+}
+
+<span class="code-keyword">public class</span> <span class="code-type">Bird</span> <span class="code-keyword">implements</span> <span class="code-type">Flyable</span> {
+    <span class="code-meta">@Override</span>
+    <span class="code-keyword">public void</span> fly() {
+        System.out.println(<span class="code-string">"鸟儿飞翔"</span>);
+    }
+}
+
+<span class="code-comment">// 接口作为类型</span>
+Flyable f = <span class="code-keyword">new</span> Bird();
+f.fly();</pre>
+
+  <h2>抽象类</h2>
+
+  <pre><span class="code-keyword">public abstract class</span> <span class="code-type">Shape</span> {
+    <span class="code-keyword">public abstract double</span> area();   <span class="code-comment">// 子类必须实现</span>
+
+    <span class="code-keyword">public void</span> printArea() {         <span class="code-comment">// 普通方法</span>
+        System.out.println(<span class="code-string">"面积: "</span> + area());
+    }
+}
+
+<span class="code-keyword">public class</span> <span class="code-type">Circle</span> <span class="code-keyword">extends</span> <span class="code-type">Shape</span> {
+    <span class="code-keyword">private double</span> r;
+
+    <span class="code-keyword">public</span> Circle(<span class="code-keyword">double</span> r) { <span class="code-keyword">this</span>.r = r; }
+
+    <span class="code-meta">@Override</span>
+    <span class="code-keyword">public double</span> area() { <span class="code-keyword">return</span> Math.PI * r * r; }
+}</pre>
+
+  <div class="page-nav">
+    <a href="control-flow.html">← 流程控制</a>
+    <a href="exceptions.html">异常处理 →</a>
+  </div>
+</main>
+
+<script src="../js/main.js"></script>
+</body>
+</html>
