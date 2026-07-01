@@ -5,11 +5,11 @@
 }
 
 :root {
-  --primary: #007396;
-  --primary-dark: #005a73;
-  --primary-light: #e6f3f7;
-  --accent: #f89820;
-  --accent-light: #fef3e6;
+  --primary: #2563EB;
+  --primary-dark: #1D4ED8;
+  --primary-light: #DBEAFE;
+  --accent: #F59E0B;
+  --accent-light: #FEF3C7;
   --bg: #f4f6f9;
   --card: #fff;
   --text: #1a2332;
@@ -26,10 +26,13 @@
   --code-number: #ff9e64;
   --sidebar-width: 260px;
   --header-height: 0px;
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
-  --radius: 10px;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.07);
+  --shadow-lg: 0 10px 15px rgba(0,0,0,0.08);
+  --shadow-xl: 0 20px 25px rgba(0,0,0,0.10);
+  --radius-xs: 4px;
   --radius-sm: 6px;
+  --radius: 10px;
   --objective-bg: #e8f5e9;
   --objective-border: #4caf50;
   --exercise-bg: #fff3e0;
@@ -41,11 +44,11 @@
 }
 
 [data-theme="dark"] {
-  --primary: #4fc3f7;
-  --primary-dark: #039be5;
-  --primary-light: #1a3a4a;
-  --accent: #ffb74d;
-  --accent-light: #3d2e1a;
+  --primary: #60A5FA;
+  --primary-dark: #3B82F6;
+  --primary-light: #1E3A5F;
+  --accent: #FBBF24;
+  --accent-light: #3D2E1A;
   --bg: #121212;
   --card: #1e1e1e;
   --text: #e0e0e0;
@@ -60,8 +63,10 @@
   --code-type: #e5c07b;
   --code-annotation: #61afef;
   --code-number: #d19a66;
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.35);
+  --shadow-lg: 0 10px 15px rgba(0,0,0,0.4);
+  --shadow-xl: 0 20px 25px rgba(0,0,0,0.45);
   --objective-bg: #1b3d1b;
   --objective-border: #4caf50;
   --exercise-bg: #3d2e1a;
@@ -80,7 +85,7 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans SC", sans-serif;
   color: var(--text);
   background: var(--bg);
-  line-height: 1.75;
+  line-height: 1.65;
   display: flex;
   min-height: 100vh;
 }
@@ -139,7 +144,7 @@ body {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-lg);
   max-height: 300px;
   max-width: 400px;
   overflow-y: auto;
@@ -238,7 +243,7 @@ body {
   cursor: pointer;
   color: var(--text);
   padding: 0.2rem 0.4rem;
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
 }
 
 #sidebar-toggle:hover {
@@ -293,14 +298,14 @@ body {
 .nav-section ~ li a[href*="oop"],
 .nav-section ~ li a[href*="exceptions"],
 .nav-section ~ li a[href*="generics"] {
-  border-left-color: #00739633;
+  border-left-color: #2563EB33;
 }
 .nav-section ~ li a[href*="basics"].active,
 .nav-section ~ li a[href*="control-flow"].active,
 .nav-section ~ li a[href*="oop"].active,
 .nav-section ~ li a[href*="exceptions"].active,
 .nav-section ~ li a[href*="generics"].active {
-  border-left-color: #007396;
+  border-left-color: #2563EB;
 }
 
 .nav-section ~ li a[href*="collections"],
@@ -324,7 +329,7 @@ body {
 .nav-section ~ li a[href*="restapi"],
 .nav-section ~ li a[href*="testing"],
 .nav-section ~ li a[href*="logging"] {
-  border-left-color: #f8982033;
+  border-left-color: #F59E0B33;
 }
 .nav-section ~ li a[href*="maven"].active,
 .nav-section ~ li a[href*="springboot"].active,
@@ -354,6 +359,7 @@ body {
 
 .main h1 {
   font-size: 2rem;
+  font-weight: 800;
   margin-bottom: 0.3rem;
   color: var(--text);
   display: flex;
@@ -373,6 +379,7 @@ body {
 
 .main h2 {
   font-size: 1.35rem;
+  font-weight: 700;
   margin: 2.8rem 0 1rem;
   padding-bottom: 0.5rem;
   border-bottom: 2px solid var(--border);
@@ -384,6 +391,7 @@ body {
 
 .main h3 {
   font-size: 1.08rem;
+  font-weight: 700;
   margin: 1.8rem 0 0.7rem;
   color: var(--text);
 }
@@ -391,7 +399,6 @@ body {
 .main p {
   margin-bottom: 1rem;
   color: var(--text);
-  line-height: 1.8;
 }
 
 .main ul, .main ol {
@@ -400,7 +407,6 @@ body {
 
 .main li {
   margin-bottom: 0.35rem;
-  line-height: 1.7;
 }
 
 .main a {
@@ -410,6 +416,56 @@ body {
 
 .main a:hover {
   text-decoration: underline;
+}
+
+/* ── Study Progress (Homepage) ── */
+.study-progress {
+  margin: 1.5rem 0 2rem;
+  padding: 1rem 1.3rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+.study-progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.6rem;
+}
+.study-progress-label {
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--text);
+}
+.study-progress-count {
+  font-size: 0.8rem;
+  color: var(--text-light);
+}
+.study-progress-count strong {
+  color: var(--primary);
+  font-size: 0.95rem;
+}
+.study-progress-track {
+  height: 8px;
+  background: var(--border);
+  border-radius: var(--radius-xs);
+  overflow: hidden;
+}
+.study-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  border-radius: var(--radius-xs);
+  transition: width 0.6s ease;
+}
+
+/* ── Sidebar visit mark ── */
+.visit-mark {
+  margin-left: auto;
+  font-size: 0.75rem;
+}
+.sidebar-nav li a .visit-mark {
+  margin-left: auto;
 }
 
 /* ── Pedagogical Cards ── */
@@ -458,7 +514,7 @@ body {
 .card-exercise code {
   background: var(--border);
   padding: 0.1em 0.35em;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   font-size: 0.85em;
 }
 
@@ -508,7 +564,7 @@ body {
 p > code, li > code {
   background: var(--primary-light);
   padding: 0.15em 0.45em;
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   color: var(--primary);
   font-size: 0.85em;
   border: 1px solid var(--border);
@@ -547,7 +603,7 @@ p > code, li > code {
   cursor: pointer;
   font-size: 0.8rem;
   padding: 0.2rem 0.5rem;
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   transition: all 0.15s;
   display: flex;
   align-items: center;
@@ -627,7 +683,7 @@ pre code {
   background: var(--accent);
   color: #fff;
   padding: 0.1em 0.5em;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   vertical-align: middle;
   margin-left: 0.3rem;
   letter-spacing: 0.02em;
@@ -716,16 +772,16 @@ pre code {
   transition: background 0.2s;
 }
 
-/* tier 1 — teal */
+/* tier 1 */
 .topic-card[href*="basics"]::before,
 .topic-card[href*="control-flow"]::before,
 .topic-card[href*="oop"]::before,
 .topic-card[href*="exceptions"]::before,
 .topic-card[href*="generics"]::before {
-  background: #007396;
+  background: #2563EB;
 }
 
-/* tier 2 — purple */
+/* tier 2 */
 .topic-card[href*="collections"]::before,
 .topic-card[href*="datetime"]::before,
 .topic-card[href*="streams"]::before,
@@ -734,7 +790,7 @@ pre code {
   background: #8b5cf6;
 }
 
-/* tier 3 — orange */
+/* tier 3 */
 .topic-card[href*="maven"]::before,
 .topic-card[href*="springboot"]::before,
 .topic-card[href*="database"]::before,
@@ -746,7 +802,7 @@ pre code {
 
 .topic-card:hover {
   transform: translateY(-4px);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-lg);
 }
 
 .topic-card .card-icon {
@@ -774,12 +830,12 @@ h2 .tier-badge {
   font-size: 0.6rem;
   font-weight: 700;
   padding: 0.15em 0.6em;
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   vertical-align: middle;
   margin-left: 0.5rem;
   letter-spacing: 0.05em;
 }
-.tier-badge.tier1 { background: #007396; color: #fff; }
+.tier-badge.tier1 { background: #2563EB; color: #fff; }
 .tier-badge.tier2 { background: #8b5cf6; color: #fff; }
 .tier-badge.tier3 { background: var(--accent); color: #fff; }
 
