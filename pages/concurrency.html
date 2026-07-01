@@ -41,6 +41,16 @@
 
   <p>并发编程让 Java 应用充分利用多核 CPU。理解线程模型和并发工具是后端开发的核心技能。</p>
 
+  <div class="card-objective">
+    <strong>🎯 本节学习目标</strong>
+    <ul>
+      <li>掌握创建线程的三种方式：Thread、Runnable、Callable</li>
+      <li>理解线程池的核心参数和拒绝策略</li>
+      <li>掌握 synchronized 和 Lock 的区别及使用场景</li>
+      <li>了解虚拟线程（Java 21+）—— 下一代并发方案</li>
+    </ul>
+  </div>
+
   <h2>创建线程</h2>
 
   <pre><span class="code-comment">// 方式一：继承 Thread</span>
@@ -195,6 +205,64 @@ ref.compareAndSet(<span class="code-string">"初始"</span>, <span class="code-s
       <li>线程池的 <code>submit(Runnable)</code> 会吞掉异常，需要用 <code>Future.get()</code> 捕获</li>
       <li>锁的范围尽可能小，避免死锁</li>
     </ul>
+  </div>
+
+  <h2>虚拟线程 <span class="version-badge java11">Java 21+</span></h2>
+  <p>虚拟线程（Virtual Threads）是 JDK 21 正式发布的轻量级线程，由 JVM 管理而非操作系统，支持百万级并发：</p>
+
+  <pre><span class="code-comment">// 创建虚拟线程</span>
+Thread vThread = Thread.ofVirtual().start(() -> {
+    System.out.println(<span class="code-string">"虚拟线程运行中"</span>);
+});
+
+<span class="code-comment">// 使用 Executors.newVirtualThreadPerTaskExecutor()</span>
+<span class="code-keyword">try</span> (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+    Future&lt;?&gt; future = executor.submit(() -> {
+        Thread.sleep(100);
+        <span class="code-keyword">return</span> <span class="code-string">"虚拟线程结果"</span>;
+    });
+    System.out.println(future.get());
+}
+
+<span class="code-comment">// 虚拟线程 vs 平台线程：</span>
+<span class="code-comment">// 平台线程：OS 线程，数量有限（通常几千），适合 CPU 密集型</span>
+<span class="code-comment">// 虚拟线程：JVM 管理，数量可百万，适合 IO 密集型（等待、休眠、阻塞）</span></pre>
+
+  <div class="info-box">
+    <strong>💡 何时使用虚拟线程？</strong> 高并发 IO 场景（Web 服务器、数据库访问、RPC 调用）下，虚拟线程可显著降低资源消耗。但 CPU 密集型计算仍用平台线程。
+  </div>
+
+  <div class="card-pitfall">
+    <strong>⚠️ 初学者常见错误</strong>
+    <ul>
+      <li><strong>new Thread() 裸用</strong>：直接创建线程无法控制并发数量，必须使用线程池</li>
+      <li><strong>Executors.newCachedThreadPool() 无上限</strong>：任务量大时会创建过多线程导致 OOM</li>
+      <li><strong>Lock 未在 finally 中释放</strong>：Lock 必须配 try/finally，否则异常时死锁</li>
+      <li><strong>this 作为锁对象</strong>：<code>synchronized(this)</code> 可能被外部代码也锁定同一个对象，建议用私有 final 对象</li>
+      <li><strong>忽略线程中断</strong>：捕获 InterruptedException 后应恢复中断状态 <code>Thread.currentThread().interrupt()</code></li>
+    </ul>
+  </div>
+
+  <div class="card-takeaway">
+    <strong>📌 本节要点</strong>
+    <ul>
+      <li>优先使用 <code>Runnable</code>（无返回值）或 <code>Callable</code>（有返回值）而非继承 Thread</li>
+      <li>线程池必配参数：corePoolSize、maximumPoolSize、workQueue、拒绝策略</li>
+      <li>synchronized 是隐式锁，ReentrantLock 是显式锁，后者更灵活但需手动释放</li>
+      <li>并发工具类：CountDownLatch（等待完成）、CyclicBarrier（相互等待）、Semaphore（限流）</li>
+      <li>虚拟线程（Java 21+）适合 IO 密集型高并发场景</li>
+    </ul>
+  </div>
+
+  <div class="card-exercise">
+    <strong>✏️ 动手练习</strong>
+    <ol>
+      <li>用 Runnable + Lambda 创建一个线程，打印 1 到 10</li>
+      <li>用 Executors.newFixedThreadPool(3) 创建线程池，提交 5 个任务观察执行顺序</li>
+      <li>用 CountDownLatch 模拟 3 个线程并发下载，主线程等待所有下载完成</li>
+      <li>用 synchronized 实现线程安全的计数器（increment/getCount）</li>
+      <li>（选做）使用虚拟线程创建 10000 个任务，观察资源使用情况</li>
+    </ol>
   </div>
 
   <div class="page-nav">

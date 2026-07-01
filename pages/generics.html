@@ -41,6 +41,16 @@
 
   <p>泛型（Generics）让类型成为参数，编写更通用、类型安全的代码。Java 5 引入，是集合框架的基石。</p>
 
+  <div class="card-objective">
+    <strong>🎯 本节学习目标</strong>
+    <ul>
+      <li>理解泛型解决的问题：类型安全 + 消除强制转型</li>
+      <li>掌握泛型类、泛型方法的定义</li>
+      <li>理解通配符 ? extends 和 ? super 及 PECS 原则</li>
+      <li>了解类型擦除及其带来的限制</li>
+    </ul>
+  </div>
+
   <h2>为什么需要泛型</h2>
 
   <pre><span class="code-comment">// 没有泛型 — 需要强制转型，不安全</span>
@@ -144,6 +154,37 @@ System.out.println(b1.getClass() == b2.getClass());  <span class="code-comment">
 
 <span class="code-comment">// 无法创建泛型数组：new T[] 不允许</span>
 <span class="code-comment">// 无法使用 instanceof：if (obj instanceof List&lt;String&gt;) 不允许</span></pre>
+
+  <div class="card-pitfall">
+    <strong>⚠️ 初学者常见错误</strong>
+    <ul>
+      <li><strong>不能创建泛型数组</strong>：<code>new T[]</code> 编译错误，因为类型擦除后运行时不知道 T 的实际类型</li>
+      <li><strong>不能使用 instanceof</strong>：<code>obj instanceof List&lt;String&gt;</code> 编译错误，只能检查 raw type</li>
+      <li><strong>静态字段不能引用类型参数</strong>：<code>private static T value;</code> 不允许，因为静态字段属于类而非实例</li>
+      <li><strong>基本类型不能作类型参数</strong>：<code>Box&lt;int&gt;</code> 错误，必须使用包装类 <code>Box&lt;Integer&gt;</code></li>
+      <li><strong>混淆 ? extends 和 ? super</strong>：记住 PECS——Producer Extends, Consumer Super</li>
+    </ul>
+  </div>
+
+  <div class="card-takeaway">
+    <strong>📌 本节要点</strong>
+    <ul>
+      <li>泛型在编译期提供类型安全，运行时通过类型擦除实现</li>
+      <li>泛型类在类名后加 <code>&lt;T&gt;</code>，泛型方法在返回类型前加 <code>&lt;T&gt;</code></li>
+      <li>通配符 <code>? extends T</code> 用于只读场景（生产者），<code>? super T</code> 用于只写场景（消费者）</li>
+      <li>类型擦除导致无法创建泛型数组、无法 instanceof 泛型类型</li>
+    </ul>
+  </div>
+
+  <div class="card-exercise">
+    <strong>✏️ 动手练习</strong>
+    <ol>
+      <li>定义一个泛型类 <code>Stack&lt;T&gt;</code>，实现 <code>push</code>、<code>pop</code>、<code>peek</code> 方法</li>
+      <li>写一个泛型方法 <code>swap(T[] arr, int i, int j)</code> 交换数组两个元素的位置</li>
+      <li>写一个方法接受 <code>List&lt;? extends Number&gt;</code> 并计算所有元素的和</li>
+      <li>定义 <code>copy(List&lt;? super T&gt; dest, List&lt;? extends T&gt; src)</code> 方法</li>
+    </ol>
+  </div>
 
   <div class="page-nav">
     <a href="exceptions.html">← 异常处理</a>

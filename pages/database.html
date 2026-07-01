@@ -39,6 +39,16 @@
 <main class="main">
   <h1><span class="emoji">🗄️</span> 数据库访问</h1>
 
+  <div class="card-objective">
+    <strong>🎯 本节学习目标</strong>
+    <ul>
+      <li>理解 JPA 实体与数据库表的映射关系</li>
+      <li>掌握 Spring Data JPA Repository 的用法</li>
+      <li>理解方法命名查询规范和 @Query 自定义查询</li>
+      <li>理解 @Transactional 事务管理</li>
+    </ul>
+  </div>
+
   <p>企业级应用几乎都需要数据库。Spring Boot 提供了 JPA 和 JDBC 两种主流方案。</p>
 
   <h2>Spring Data JPA</h2>
@@ -181,6 +191,38 @@ spring:
       <li>生产环境 <code>ddl-auto</code> 设为 <code>validate</code> 或 <code>none</code>，用 Flyway 管理 DDL</li>
       <li>复杂查询用 <code>@Query</code> + JPQL，避免过长的 find 方法名</li>
     </ul>
+  </div>
+
+  <div class="card-pitfall">
+    <strong>⚠️ 初学者常见错误</strong>
+    <ul>
+      <li><strong>N+1 查询问题</strong>：LAZY 加载下遍历实体关联会触发 N 次额外查询，用 <code>@EntityGraph</code> 或 <code>JOIN FETCH</code> 解决</li>
+      <li><strong>忘记 @Transactional</strong>：跨 Repository 操作需要事务，否则每条 SQL 单独提交，部分成功部分失败</li>
+      <li><strong>实体类未写 equals/hashCode</strong>：HashSet 或 @OneToMany 集合中使用无正确 hashCode 的实体导致异常</li>
+      <li><strong>生产环境 ddl-auto=update</strong>：使用 Flyway/Liquibase 管理 DDL，<code>ddl-auto</code> 只能用于开发</li>
+      <li><strong>懒加载异常 LazyInitializationException</strong>：在事务外访问 LAZY 字段导致，确保访问发生在事务内</li>
+    </ul>
+  </div>
+
+  <div class="card-takeaway">
+    <strong>📌 本节要点</strong>
+    <ul>
+      <li>JPA 通过注解（@Entity、@Table、@Id）映射对象与数据库表</li>
+      <li>Spring Data JPA 根据方法名自动生成 SQL，复杂查询用 @Query + JPQL</li>
+      <li>@ManyToOne / @OneToMany 映射实体关系，默认使用 LAZY 加载避免性能问题</li>
+      <li>@Transactional 管理事务边界，readOnly=true 优化只读查询</li>
+    </ul>
+  </div>
+
+  <div class="card-exercise">
+    <strong>✏️ 动手练习</strong>
+    <ol>
+      <li>创建一个 Product 实体（id、name、price、category），对应 JPA Repository</li>
+      <li>实现根据价格范围查询商品的方法（使用方法命名规范）</li>
+      <li>用 @Query 编写一个 JPQL 查询：按分类统计商品数量</li>
+      <li>在 Service 层添加 @Transactional，模拟转账场景（两个账户之间的金额转移）</li>
+      <li>创建一个 Flyway 迁移脚本，在已有表中新增一列</li>
+    </ol>
   </div>
 
   <div class="page-nav">

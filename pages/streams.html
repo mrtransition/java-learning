@@ -39,6 +39,17 @@
 <main class="main">
   <h1><span class="emoji">🌊</span> Lambda 与 Stream API</h1>
 
+  <div class="card-objective">
+    <strong>🎯 本节学习目标</strong>
+    <ul>
+      <li>理解 Lambda 表达式语法及其与传统匿名类的区别</li>
+      <li>掌握四大函数式接口：Predicate、Function、Consumer、Supplier</li>
+      <li>熟练使用 Stream API 进行过滤、映射、归约操作</li>
+      <li>掌握 Collectors 分组和分区操作</li>
+      <li>学会用 Optional 优雅处理 null</li>
+    </ul>
+  </div>
+
   <h2>Lambda 表达式</h2>
   <p>Lambda 提供简洁的匿名函数语法，核心格式：<code>(参数) -> 表达式</code></p>
 
@@ -117,6 +128,34 @@ List&lt;Integer&gt; result = numbers.stream()
 
 System.out.println(result);  <span class="code-comment">// [36, 16]</span></pre>
 
+  <h3>Collectors 分组与分区</h3>
+  <p><code>groupingBy</code> 按条件分组，<code>partitioningBy</code> 按 boolean 分区——这是 SQL 式 GROUP BY 的 Java 实现：</p>
+
+  <pre>List&lt;String&gt; words = Arrays.asList(<span class="code-string">"apple"</span>, <span class="code-string">"banana"</span>, <span class="code-string">"cherry"</span>, <span class="code-string">"avocado"</span>);
+
+<span class="code-comment">// 按首字母分组</span>
+Map&lt;Character, List&lt;String&gt;&gt; byFirst = words.stream()
+    .collect(Collectors.groupingBy(w -> w.charAt(0)));
+System.out.println(byFirst);
+<span class="code-comment">// {a=[apple, avocado], b=[banana], c=[cherry]}</span>
+
+<span class="code-comment">// 分区：长度 &gt; 5 的为一组，其余为另一组</span>
+Map&lt;Boolean, List&lt;String&gt;&gt; partitioned = words.stream()
+    .collect(Collectors.partitioningBy(w -> w.length() &gt; 5));
+System.out.println(partitioned);
+<span class="code-comment">// {false=[apple, cherry], true=[banana, avocado]}</span>
+
+<span class="code-comment">// 分组后计数</span>
+Map&lt;Character, Long&gt; countByFirst = words.stream()
+    .collect(Collectors.groupingBy(w -> w.charAt(0), Collectors.counting()));
+System.out.println(countByFirst);  <span class="code-comment">// {a=2, b=1, c=1}</span>
+
+<span class="code-comment">// 分组后映射</span>
+Map&lt;Character, List&lt;Integer&gt;&gt; lengthByFirst = words.stream()
+    .collect(Collectors.groupingBy(w -> w.charAt(0),
+             Collectors.mapping(String::length, Collectors.toList())));
+<span class="code-comment">// {a=[5, 7], b=[6], c=[6]}</span></pre>
+
   <h3>终端操作</h3>
 
   <pre>List&lt;String&gt; words = Arrays.asList(<span class="code-string">"hello"</span>, <span class="code-string">"world"</span>, <span class="code-string">"java"</span>);
@@ -167,6 +206,39 @@ String name = findUser(userId)
       <li>Stream 只能消费一次，重复使用会抛异常</li>
       <li>避免在 Lambda 中修改外部变量——变量应实际上是 final 的</li>
     </ul>
+  </div>
+
+  <div class="card-pitfall">
+    <strong>⚠️ 初学者常见错误</strong>
+    <ul>
+      <li><strong>Stream 只能消费一次</strong>：调用终端操作后 Stream 已关闭，再次使用抛 <code>IllegalStateException</code></li>
+      <li><strong>忘记终端操作</strong>：Stream 是惰性的，没有终端操作（collect/forEach/count）时中间操作不会执行</li>
+      <li><strong>在 Lambda 中修改外部变量</strong>：Lambda 引用的局部变量必须是 effectively final 的</li>
+      <li><strong>过度使用 Stream</strong>：简单 for-each 用传统循环更清晰，Stream 适合复杂数据管道</li>
+      <li><strong>Optional.get() 滥用</strong>：用 <code>orElse</code>/<code>orElseThrow</code> 替代直接 <code>get()</code>，避免 NoSuchElementException</li>
+    </ul>
+  </div>
+
+  <div class="card-takeaway">
+    <strong>📌 本节要点</strong>
+    <ul>
+      <li>Lambda 语法：<code>(参数) -> 表达式</code>，配合函数式接口使用</li>
+      <li>Stream 操作分中间操作（懒执行）和终端操作（触发执行）</li>
+      <li>核心函数式接口：Predicate（断言）、Function（转换）、Consumer（消费）、Supplier（供给）</li>
+      <li>Collectors.groupingBy / partitioningBy 实现类似 SQL 的分组统计</li>
+      <li>Optional 避免 NPE，用 orElse/orElseThrow 安全取值</li>
+    </ul>
+  </div>
+
+  <div class="card-exercise">
+    <strong>✏️ 动手练习</strong>
+    <ol>
+      <li>给定 List&lt;Integer&gt;，用 Stream 过滤出偶数、求平方、排序后收集为新的 List</li>
+      <li>用 Stream 计算 List&lt;String&gt; 中所有字符串的长度之和（使用 mapToInt + sum）</li>
+      <li>用 groupingBy 对一组 Person 对象按城市分组</li>
+      <li>用 Optional 实现一个方法，从 Map 中取值并在键不存在时返回默认值</li>
+      <li>用 partitioningBy 将 List&lt;Integer&gt; 分为奇数和偶数两组</li>
+    </ol>
   </div>
 
   <div class="page-nav">

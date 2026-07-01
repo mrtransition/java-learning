@@ -39,6 +39,16 @@
 <main class="main">
   <h1><span class="emoji">🍃</span> Spring Boot</h1>
 
+  <div class="card-objective">
+    <strong>🎯 本节学习目标</strong>
+    <ul>
+      <li>理解 Spring Boot 自动配置原理</li>
+      <li>掌握 Starter 依赖的使用方法</li>
+      <li>掌握依赖注入的多种方式及最佳实践</li>
+      <li>学会使用 application.yml 进行配置管理</li>
+    </ul>
+  </div>
+
   <p>Spring Boot 是当前 Java 企业开发的事实标准，通过自动配置大幅简化了 Spring 应用的搭建。</p>
 
   <div class="info-box warn">
@@ -163,6 +173,38 @@ logging:
   level:
     com.example: DEBUG</pre>
     </div>
+  </div>
+
+  <div class="card-pitfall">
+    <strong>⚠️ 初学者常见错误</strong>
+    <ul>
+      <li><strong>@SpringBootApplication 位置错误</strong>：启动类必须在所有组件类的根包中，否则组件扫描不到</li>
+      <li><strong>@Autowired 字段注入滥用</strong>：官方推荐构造器注入（final 字段 + 构造参数），便于测试和不变性</li>
+      <li><strong>循环依赖</strong>：A 依赖 B、B 依赖 A 导致启动失败，应重构代码消除循环</li>
+      <li><strong>忽略 application.yml 缩进</strong>：YAML 对缩进敏感，多级属性缩进不一致导致配置不生效</li>
+      <li><strong>Controller 直接暴露实体</strong>：应该用 DTO 和实体解耦，避免序列化问题</li>
+    </ul>
+  </div>
+
+  <div class="card-takeaway">
+    <strong>📌 本节要点</strong>
+    <ul>
+      <li>@SpringBootApplication = @Configuration + @EnableAutoConfiguration + @ComponentScan</li>
+      <li>Starter 依赖提供开箱即用的自动配置</li>
+      <li>构造器注入是官方推荐的 DI 方式</li>
+      <li>YAML 格式更清晰，Properties 格式更简单，据团队习惯选择</li>
+    </ul>
+  </div>
+
+  <div class="card-exercise">
+    <strong>✏️ 动手练习</strong>
+    <ol>
+      <li>创建一个 Spring Boot 项目，包含 spring-boot-starter-web 依赖</li>
+      <li>在启动类所在包中创建一个 @Service 和 @RestController</li>
+      <li>在 application.yml 中配置 server.port=8081，启动验证</li>
+      <li>用 @ConfigurationProperties 绑定一组配置到 Java 对象</li>
+      <li>使用 @Value 注入单个配置值并测试</li>
+    </ol>
   </div>
 
   <div class="page-nav">

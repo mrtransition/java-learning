@@ -39,6 +39,16 @@
 <main class="main">
   <h1><span class="emoji">⚠️</span> 异常处理</h1>
 
+  <div class="card-objective">
+    <strong>🎯 本节学习目标</strong>
+    <ul>
+      <li>理解 try/catch/finally 的执行流程</li>
+      <li>掌握 try-with-resources 自动资源管理</li>
+      <li>区分受检异常（Checked）和非受检异常（Unchecked）</li>
+      <li>学会自定义异常及最佳实践</li>
+    </ul>
+  </div>
+
   <h2>try / catch / finally</h2>
 
   <pre><span class="code-keyword">import</span> java.io.*;
@@ -123,6 +133,37 @@
       <li>优先使用 try-with-resources 管理资源</li>
       <li>记录或重新抛出异常，不要吞掉</li>
     </ul>
+  </div>
+
+  <div class="card-pitfall">
+    <strong>⚠️ 初学者常见错误</strong>
+    <ul>
+      <li><strong>捕获过于宽泛的异常</strong>：<code>catch (Exception e)</code> 会隐藏预期之外的错误，应捕获最具体的异常类型</li>
+      <li><strong>吞掉异常</strong>：空的 catch 块让问题难以排查，至少记录日志</li>
+      <li><strong>用异常控制流程</strong>：异常处理有性能开销，正常业务流程用 if/else 判断</li>
+      <li><strong>在 finally 中返回值</strong>：finally 中的 return 会覆盖 try/catch 中的 return</li>
+      <li><strong>资源未关闭</strong>：旧代码中 finally 里关闭资源可能为 null，优先用 try-with-resources</li>
+    </ul>
+  </div>
+
+  <div class="card-takeaway">
+    <strong>📌 本节要点</strong>
+    <ul>
+      <li>try 监控可能抛异常的代码，catch 处理异常，finally 无论如何都执行（清理资源）</li>
+      <li>try-with-resources 自动关闭 AutoCloseable 资源，代码更简洁安全</li>
+      <li>受检异常必须处理或声明抛出；非受检异常（RuntimeException）可选处理</li>
+      <li>自定义异常继承 Exception（受检）或 RuntimeException（非受检），据业务场景选择</li>
+    </ul>
+  </div>
+
+  <div class="card-exercise">
+    <strong>✏️ 动手练习</strong>
+    <ol>
+      <li>编写一段代码尝试将字符串 <code>"abc"</code> 转为整数，捕获 <code>NumberFormatException</code> 并输出友好提示</li>
+      <li>用 try-with-resources 读取一个文件并打印内容，处理 <code>IOException</code></li>
+      <li>自定义一个 <code>AgeOutOfRangeException</code>（非受检），在设置年龄 < 0 或 > 150 时抛出</li>
+      <li>写一个方法演示 finally 块的执行（即使 try 中有 return，finally 也会执行）</li>
+    </ol>
   </div>
 
   <div class="page-nav">

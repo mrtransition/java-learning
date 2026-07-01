@@ -39,6 +39,16 @@
 <main class="main">
   <h1><span class="emoji">🧪</span> 单元测试</h1>
 
+  <div class="card-objective">
+    <strong>🎯 本节学习目标</strong>
+    <ul>
+      <li>掌握 JUnit 5 的核心注解：@Test、@BeforeEach、@BeforeAll</li>
+      <li>学会使用 Mockito 隔离外部依赖</li>
+      <li>学会使用 MockMvc 测试 Controller 层</li>
+      <li>理解测试金字塔和不同层级的测试策略</li>
+    </ul>
+  </div>
+
   <p>测试是保障代码质量的基石。企业级项目通常包含单元测试、集成测试和端到端测试三层。</p>
 
   <h2>JUnit 5 基础</h2>
@@ -209,6 +219,39 @@
       <li>使用 <code>@ParameterizedTest</code> 测试多组数据</li>
       <li>集成测试用 <code>@Testcontainers</code> 而非 H2 内存库</li>
     </ul>
+  </div>
+
+  <div class="card-pitfall">
+    <strong>⚠️ 初学者常见错误</strong>
+    <ul>
+      <li><strong>测试方法不是 public</strong>：JUnit 5 允许 default/package 可见性，但不要用 private</li>
+      <li><strong>测试间共享状态</strong>：每个测试应是独立的，不应依赖执行顺序</li>
+      <li><strong>Mock 太多</strong>：过度 Mock 导致测试失去意义，集成测试用真实依赖</li>
+      <li><strong>只测正确路径</strong>：别忘了测试边界情况和异常分支</li>
+      <li><strong>忽略测试可读性</strong>：方法名用 shouldXxxWhenYyy 格式，遵循 AAA 模式</li>
+    </ul>
+  </div>
+
+  <div class="card-takeaway">
+    <strong>📌 本节要点</strong>
+    <ul>
+      <li>JUnit 5 提供 @Test、断言、参数化测试等功能</li>
+      <li>Mockito 通过 @Mock + @InjectMocks 隔离外部依赖</li>
+      <li>MockMvc 模拟 HTTP 请求测试 Controller 响应</li>
+      <li>Testcontainers 在 Docker 容器中运行真实数据库做集成测试</li>
+      <li>测试金字塔：70% 单元测试 + 20% 集成测试 + 10% E2E 测试</li>
+    </ul>
+  </div>
+
+  <div class="card-exercise">
+    <strong>✏️ 动手练习</strong>
+    <ol>
+      <li>为 Calculator 类编写 JUnit 5 测试（add、subtract、multiply、divide）</li>
+      <li>用 Mockito 模拟 UserRepository，测试 UserService.findById</li>
+      <li>用 MockMvc 测试 GET /api/v1/users/1 返回 200 和正确的 JSON 结构</li>
+      <li>用 @ParameterizedTest 测试多组输入/输出数据</li>
+      <li>（选做）用 Testcontainers 启动 MySQL 容器测试 Repository</li>
+    </ol>
   </div>
 
   <div class="page-nav">

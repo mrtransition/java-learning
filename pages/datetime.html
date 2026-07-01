@@ -41,6 +41,16 @@
 
   <p>Java 8 引入全新的 <code>java.time</code> 包，解决旧版 <code>Date</code> / <code>Calendar</code> 设计缺陷。新 API 不可变、线程安全、语义清晰。</p>
 
+  <div class="card-objective">
+    <strong>🎯 本节学习目标</strong>
+    <ul>
+      <li>掌握 LocalDate / LocalTime / LocalDateTime 的基本操作</li>
+      <li>理解 Period 和 Duration 的区别及使用场景</li>
+      <li>学会日期格式化和字符串解析</li>
+      <li>了解时区处理及与旧 API 的互操作</li>
+    </ul>
+  </div>
+
   <h2>LocalDate / LocalTime / LocalDateTime</h2>
 
   <pre><span class="code-keyword">import</span> java.time.*;
@@ -143,6 +153,38 @@ java.sql.Date sqlDate = java.sql.Date.valueOf(ld);</pre>
       <li>Jackson 配置 <code>jackson-datatype-jsr310</code> 序列化 <code>java.time</code></li>
       <li>数据库新驱动（JDBC 4.2+）直接支持 <code>LocalDate</code> / <code>LocalDateTime</code></li>
     </ul>
+  </div>
+
+  <div class="card-pitfall">
+    <strong>⚠️ 初学者常见错误</strong>
+    <ul>
+      <li><strong>月份从 1 开始</strong>：<code>LocalDate.of(2026, 1, 15)</code> 中的 1 代表一月（不同于旧 <code>Calendar</code> 从 0 开始）</li>
+      <li><strong>混淆 Period 和 Duration</strong>：Period 用于日期差（年/月/日），Duration 用于时间差（时/分/秒/纳秒）</li>
+      <li><strong>格式化模式区分大小写</strong>：<code>yyyy</code> 是年份，<code>YYYY</code> 是周年（week-based year）容易用错</li>
+      <li><strong>解析失败未处理</strong>：<code>DateTimeParseException</code> 是运行时异常，但应妥善处理</li>
+      <li><strong>忽略时区转换</strong>：<code>LocalDateTime</code> 不带时区，跨时区场景必须用 <code>ZonedDateTime</code></li>
+    </ul>
+  </div>
+
+  <div class="card-takeaway">
+    <strong>📌 本节要点</strong>
+    <ul>
+      <li>java.time 包的核心类不可变且线程安全</li>
+      <li>LocalDate（日期）、LocalTime（时间）、LocalDateTime（日期+时间）</li>
+      <li>Period 用于日期间隔，Duration 用于时间间隔</li>
+      <li>DateTimeFormatter 线程安全，可缓存复用</li>
+    </ul>
+  </div>
+
+  <div class="card-exercise">
+    <strong>✏️ 动手练习</strong>
+    <ol>
+      <li>获取当前日期，分别加 10 天、减 2 个月、加 1 年并输出</li>
+      <li>计算从 2026 年 1 月 1 日到今天的天数差（使用 Period 或 Duration）</li>
+      <li>将字符串 <code>"2026-12-25 10:30:00"</code> 解析为 LocalDateTime</li>
+      <li>获取当前时间在纽约时区（America/New_York）的时间并输出</li>
+      <li>比较两个 LocalDate 的先后顺序（使用 isBefore / isAfter）</li>
+    </ol>
   </div>
 
   <div class="page-nav">

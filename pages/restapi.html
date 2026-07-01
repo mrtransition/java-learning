@@ -39,6 +39,16 @@
 <main class="main">
   <h1><span class="emoji">🌐</span> REST API 设计</h1>
 
+  <div class="card-objective">
+    <strong>🎯 本节学习目标</strong>
+    <ul>
+      <li>理解 RESTful 资源命名规范</li>
+      <li>掌握 @RestController CRUD 的完整写法</li>
+      <li>理解统一响应和全局异常处理的设计模式</li>
+      <li>学会使用 Bean Validation 校验请求参数</li>
+    </ul>
+  </div>
+
   <p>REST API 是企业应用对外交互的核心方式。一个好的 API 设计直接影响系统的可维护性和使用体验。</p>
 
   <h2>RESTful 资源命名规范</h2>
@@ -199,6 +209,39 @@
       <li>敏感信息（密码、身份证）在序列化时用 <code>@JsonIgnore</code></li>
       <li>全局异常处理避免堆栈泄露到客户端</li>
     </ul>
+  </div>
+
+  <div class="card-pitfall">
+    <strong>⚠️ 初学者常见错误</strong>
+    <ul>
+      <li><strong>直接暴露实体类</strong>：Controller 中返回 Entity 会导致数据泄露（如密码字段），必须用 DTO 解耦</li>
+      <li><strong>忽略 HTTP 状态码语义</strong>：创建返回 201、成功返回 200、未找到返回 404、参数错误返回 400</li>
+      <li><strong>异常堆栈泄露到客户端</strong>：全局异常处理器应返回自定义错误信息而非堆栈信息</li>
+      <li><strong>@PathVariable 和 @RequestParam 混用</strong>：路径变更参数用 @PathVariable，查询参数用 @RequestParam</li>
+      <li><strong>未做参数校验</strong>：用 @Valid + @NotBlank/@Email/@Size 等注解进行声明式校验</li>
+    </ul>
+  </div>
+
+  <div class="card-takeaway">
+    <strong>📌 本节要点</strong>
+    <ul>
+      <li>REST API 使用名词复数命名资源（/users/{id}），HTTP 方法对应 CRUD 操作</li>
+      <li>@RestController + @RequestMapping 构建控制器</li>
+      <li>统一响应体 + @RestControllerAdvice 全局异常处理</li>
+      <li>@Valid + Bean Validation 注解实现声明式参数校验</li>
+      <li>使用 DTO 而非实体类做请求/响应，保护内部数据</li>
+    </ul>
+  </div>
+
+  <div class="card-exercise">
+    <strong>✏️ 动手练习</strong>
+    <ol>
+      <li>创建 UserController，实现 GET /users、POST /users、GET /users/{id}、DELETE /users/{id}</li>
+      <li>设计 CreateUserRequest DTO 并添加 @NotBlank/@Email 等校验注解</li>
+      <li>实现全局异常处理，格式化返回 ApiResult</li>
+      <li>在 POST 创建成功后返回 201 + Location 头</li>
+      <li>为 User 资源添加分页查询支持（page + size 参数）</li>
+    </ol>
   </div>
 
   <div class="page-nav">

@@ -39,6 +39,16 @@
 <main class="main">
   <h1><span class="emoji">🔤</span> 变量与数据类型</h1>
 
+  <div class="card-objective">
+    <strong>🎯 本节学习目标</strong>
+    <ul>
+      <li>掌握 Java 的 8 种基本数据类型及其适用场景</li>
+      <li>理解基本类型与引用类型的区别</li>
+      <li>熟练使用 String 类及其常用方法</li>
+      <li>掌握自动类型转换和强制类型转换的规则</li>
+    </ul>
+  </div>
+
   <h2>基本数据类型</h2>
   <p>Java 有 8 种基本类型（primitive types）：</p>
   <table>
@@ -108,6 +118,16 @@
     强制类型转换可能导致数据溢出或精度丢失，使用前请确认值在目标类型范围内。
   </div>
 
+  <div class="card-pitfall">
+    <strong>⚠️ 初学者常见错误</strong>
+    <ul>
+      <li><strong>未初始化就使用</strong>：局部变量必须初始化才能使用，<code>int x; System.out.println(x);</code> 编译错误</li>
+      <li><strong>精度丢失</strong>：<code>int / int</code> 结果是整数，如 <code>5 / 2 = 2</code>（不是 2.5）</li>
+      <li><strong>浮点数比较</strong>：不要用 <code>==</code> 比较浮点数，因精度问题应使用差值范围比较</li>
+      <li><strong>字符串用 ==</strong>：比较字符串内容用 <code>.equals()</code>，而非 <code>==</code></li>
+    </ul>
+  </div>
+
   <h2>var 关键字（Java 10+）</h2>
   <p>局部变量可用 <code>var</code> 让编译器推断类型：</p>
 
@@ -115,6 +135,27 @@
 <span class="code-keyword">var</span> count = 42;              <span class="code-comment">// 等同于 int count</span>
 <span class="code-keyword">var</span> list = <span class="code-keyword">new</span> ArrayList&lt;String&gt;();  <span class="code-comment">// ArrayList&lt;String&gt;</span>
 <span class="code-comment">// var x = null;           // ❌ 编译错误，无法推断类型</span></pre>
+
+  <div class="card-takeaway">
+    <strong>📌 本节要点</strong>
+    <ul>
+      <li>Java 有 8 种基本类型：byte、short、int、long、float、double、char、boolean</li>
+      <li>String 是引用类型，不是基本类型，使用 <code>.equals()</code> 比较内容</li>
+      <li>小范围类型可自动转为大范围；大范围转小范围需要强制转换，可能丢失精度</li>
+      <li><code>var</code> 可简化局部变量声明，但不能用于字段、方法参数或 <code>null</code></li>
+    </ul>
+  </div>
+
+  <div class="card-exercise">
+    <strong>✏️ 动手练习</strong>
+    <ol>
+      <li>声明一个 <code>int</code> 变量并赋值为 100，分别自动转换为 <code>long</code> 和 <code>double</code> 输出</li>
+      <li>将 <code>3.14159</code> 强制转换为 <code>int</code>，观察输出结果</li>
+      <li>定义一个 <code>String</code> 变量，调用 <code>length()</code>、<code>toUpperCase()</code>、<code>substring()</code> 方法</li>
+      <li>尝试 <code>int x = 10; long y = x; int z = (int) y;</code> 思考哪些步骤需要显式转换</li>
+      <li>用 <code>var</code> 声明一个字符串变量，再用 <code>var</code> 声明一个 <code>ArrayList&lt;String&gt;</code></li>
+    </ol>
+  </div>
 
   <div class="page-nav">
     <span></span>

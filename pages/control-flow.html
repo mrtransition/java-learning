@@ -39,6 +39,16 @@
 <main class="main">
   <h1><span class="emoji">🔀</span> 流程控制</h1>
 
+  <div class="card-objective">
+    <strong>🎯 本节学习目标</strong>
+    <ul>
+      <li>掌握 if/else 分支结构的写法与逻辑</li>
+      <li>理解 switch 语句和 switch 表达式的区别</li>
+      <li>熟练使用 for、while、do-while 三种循环</li>
+      <li>理解 break 和 continue 的作用场景</li>
+    </ul>
+  </div>
+
   <h2>if / else if / else</h2>
 
   <pre><span class="code-keyword">int</span> score = 85;
@@ -109,6 +119,16 @@ System.out.println(result);  <span class="code-comment">// 1</span></pre>
     System.out.println(<span class="code-string">"至少一次"</span>);
 } <span class="code-keyword">while</span> (j &gt; 0);</pre>
 
+  <div class="card-pitfall">
+    <strong>⚠️ 初学者常见错误</strong>
+    <ul>
+      <li><strong>if 后加分号</strong>：<code>if (x > 0);</code> 分号结束了语句，后面的代码块总会执行</li>
+      <li><strong>== 比较字符串</strong>：字符串比较用 <code>.equals()</code>，<code>==</code> 比较的是引用地址</li>
+      <li><strong>switch 忘记 break</strong>：传统 switch 会穿透到下一个 case，务必加 <code>break</code></li>
+      <li><strong>无限循环</strong>：确保循环条件最终会变为 false，避免 <code>while (true)</code> 没有出口</li>
+    </ul>
+  </div>
+
   <h2>break 与 continue</h2>
 
   <pre><span class="code-keyword">for</span> (<span class="code-keyword">int</span> i = 0; i &lt; 10; i++) {
@@ -116,6 +136,27 @@ System.out.println(result);  <span class="code-comment">// 1</span></pre>
     <span class="code-keyword">if</span> (i == 7) <span class="code-keyword">break</span>;      <span class="code-comment">// 到 7 时退出循环</span>
     System.out.print(i + <span class="code-string">" "</span>);  <span class="code-comment">// 0 1 2 4 5 6</span>
 }</pre>
+
+  <div class="card-takeaway">
+    <strong>📌 本节要点</strong>
+    <ul>
+      <li>分支结构有 if/else 和 switch 两种，switch 表达式 (Java 14+) 更简洁安全</li>
+      <li>三种循环中 for 适合已知次数，while 适合条件控制，do-while 保证至少执行一次</li>
+      <li><code>break</code> 退出整个循环，<code>continue</code> 跳过当前轮次继续下一轮</li>
+      <li>Switch 表达式用 <code>-></code> 箭头语法，不需要 break，多行语句用 <code>yield</code> 返回值</li>
+    </ul>
+  </div>
+
+  <div class="card-exercise">
+    <strong>✏️ 动手练习</strong>
+    <ol>
+      <li>用 if/else 实现一个成绩等级判断：90+ 为 A，80+ 为 B，70+ 为 C，60+ 为 D，其余为 F</li>
+      <li>用 switch 表达式将数字 1-7 转换为中文星期几</li>
+      <li>用 for 循环打印 1 到 100 之间的所有偶数</li>
+      <li>用 while 循环计算 1+2+3+...+100 的和</li>
+      <li>输出 1-20，但跳过 5 的倍数，到 17 停止（综合使用 continue 和 break）</li>
+    </ol>
+  </div>
 
   <div class="page-nav">
     <a href="basics.html">← 变量与数据类型</a>

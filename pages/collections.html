@@ -40,6 +40,16 @@
   <h1><span class="emoji">📦</span> 集合框架</h1>
 
   <p>Java Collections Framework 提供了一套统一的接口和实现类。核心接口：</p>
+
+  <div class="card-objective">
+    <strong>🎯 本节学习目标</strong>
+    <ul>
+      <li>掌握 List、Set、Map、Queue 四大接口的特点和选用场景</li>
+      <li>理解 ArrayList vs LinkedList、HashMap vs TreeMap 的区别</li>
+      <li>学会使用 Collections 工具类进行排序、查找、不可变包装</li>
+      <li>了解不可变集合（Java 9+ List.of / Set.of / Map.of）</li>
+    </ul>
+  </div>
   <table>
     <tr><th>接口</th><th>特点</th><th>常用实现</th></tr>
     <tr><td>List</td><td>有序、可重复</td><td>ArrayList, LinkedList</td></tr>
@@ -102,26 +112,71 @@ System.out.println(scores.getOrDefault(<span class="code-string">"David"</span>,
 scores.merge(<span class="code-string">"Bob"</span>, 5, Integer::sum);  <span class="code-comment">// Bob 变为 92</span>
 scores.computeIfAbsent(<span class="code-string">"Eve"</span>, k -> 88);  <span class="code-comment">// 键不存在时计算</span></pre>
 
-  <h2>Collections 工具类</h2>
+  <h2>集合排序与比较</h2>
 
-  <pre>List&lt;String&gt; list = <span class="code-keyword">new</span> ArrayList&lt;&gt;(Arrays.asList(<span class="code-string">"c"</span>, <span class="code-string">"a"</span>, <span class="code-string">"b"</span>));
+  <pre>List&lt;String&gt; names = Arrays.asList(<span class="code-string">"Charlie"</span>, <span class="code-string">"Alice"</span>, <span class="code-string">"Bob"</span>);
 
-Collections.sort(list);              <span class="code-comment">// [a, b, c]</span>
-Collections.reverse(list);           <span class="code-comment">// [c, b, a]</span>
-Collections.shuffle(list);           <span class="code-comment">// 随机打乱</span>
+<span class="code-comment">// 自然排序（元素需实现 Comparable）</span>
+Collections.sort(names);                         <span class="code-comment">// [Alice, Bob, Charlie]</span>
 
-List&lt;String&gt; immutable = Collections.unmodifiableList(list);
-<span class="code-comment">// immutable.add("x");  // ❌ 运行时异常</span>
+<span class="code-comment">// 自定义排序（Comparator）</span>
+names.sort((a, b) -> b.compareTo(a));            <span class="code-comment">// [Charlie, Bob, Alice]</span>
+names.sort(Comparator.comparingInt(String::length)); <span class="code-comment">// [Bob, Alice, Charlie]</span>
 
-<span class="code-comment">// List.of / Set.of / Map.of (Java 9+) 创建不可变集合</span>
-List&lt;String&gt; fixed = Collections.unmodifiableList(
-    Arrays.asList(<span class="code-string">"x"</span>, <span class="code-string">"y"</span>, <span class="code-string">"z"</span>));
-Set&lt;Integer&gt; nums = Collections.unmodifiableSet(
-    <span class="code-keyword">new</span> HashSet&lt;&gt;(Arrays.asList(1, 2, 3)));
-Map&lt;String, Integer&gt; ages = <span class="code-keyword">new</span> HashMap&lt;&gt;();
-ages.put(<span class="code-string">"Alice"</span>, 30);
-ages.put(<span class="code-string">"Bob"</span>, 25);
-ages = Collections.unmodifiableMap(ages);</pre>
+<span class="code-comment">// 稳定排序：sorted() 保留相等元素的相对顺序</span>
+Collections.reverse(names);
+Collections.shuffle(names);                      <span class="code-comment">// 随机打乱</span></pre>
+
+  <h2>HashMap 与 hashCode 契约</h2>
+  <p>HashMap 依赖 <code>hashCode()</code> 和 <code>equals()</code> 定位和比较键。作为键的类必须遵守：</p>
+  <ul>
+    <li>如果 <code>a.equals(b)</code> 为 true，则 <code>a.hashCode() == b.hashCode()</code> 必须成立</li>
+    <li>如果 <code>hashCode()</code> 相同但 <code>equals()</code> 不同，称为哈希碰撞，链表/红黑树处理</li>
+    <li>常用作键的类型：String、Integer、Long 等不可变类（已正确实现 hashCode + equals）</li>
+  </ul>
+
+  <h2>不可变集合 <span class="version-badge">Java 9+</span></h2>
+
+  <pre><span class="code-comment">// List.of / Set.of / Map.of — 创建不可变集合</span>
+List&lt;String&gt; fixed = List.of(<span class="code-string">"x"</span>, <span class="code-string">"y"</span>, <span class="code-string">"z"</span>);
+Set&lt;Integer&gt; nums = Set.of(1, 2, 3);
+Map&lt;String, Integer&gt; ages = Map.of(<span class="code-string">"Alice"</span>, 30, <span class="code-string">"Bob"</span>, 25);
+
+<span class="code-comment">// 不可变集合的注意事项</span>
+<span class="code-comment">// fixed.add("w");         // ❌ 运行时 UnsupportedOperationException</span>
+<span class="code-comment">// 不可变集合不允许 null 元素</span></pre>
+
+  <div class="card-pitfall">
+    <strong>⚠️ 初学者常见错误</strong>
+    <ul>
+      <li><strong>遍历时修改集合</strong>：for-each 遍历 List 时调用 <code>remove()</code> 抛 <code>ConcurrentModificationException</code>，应使用 <code>iterator.remove()</code></li>
+      <li><strong>HashMap 键使用可变对象</strong>：键的 hashCode 改变后无法再被查找</li>
+      <li><strong>混淆 Comparable 和 Comparator</strong>：Comparable 是"内部比较"（类自身实现），Comparator 是"外部比较"（单独定义排序规则）</li>
+      <li><strong>Arrays.asList 返回固定大小 List</strong>：返回的 List 不能 add/remove，但可以 set</li>
+      <li><strong>HashSet 无序</strong>：需要插入顺序用 LinkedHashSet，需要排序用 TreeSet</li>
+    </ul>
+  </div>
+
+  <div class="card-takeaway">
+    <strong>📌 本节要点</strong>
+    <ul>
+      <li>List 有序可重复，Set 不可重复，Map 键值对，Queue FIFO</li>
+      <li>ArrayList 基于数组（随机访问快），LinkedList 基于链表（插入删除快）</li>
+      <li>HashMap 用 hashCode + equals 定位键，作为键的类必须正确实现这两个方法</li>
+      <li>Collections 提供排序、查找、不可变包装等工具方法</li>
+    </ul>
+  </div>
+
+  <div class="card-exercise">
+    <strong>✏️ 动手练习</strong>
+    <ol>
+      <li>创建 ArrayList 存入 5 个城市名，用 Collections.sort 排序后输出</li>
+      <li>用 HashMap 统计一句话中每个字符出现的次数</li>
+      <li>用 HashSet 去除 List&lt;Integer&gt; 中的重复元素</li>
+      <li>比较 ArrayList 和 LinkedList 在头部插入 10000 个元素的性能差异</li>
+      <li>使用 List.of 创建不可变列表，尝试修改并观察异常</li>
+    </ol>
+  </div>
 
   <div class="page-nav">
     <a href="generics.html">← 泛型</a>

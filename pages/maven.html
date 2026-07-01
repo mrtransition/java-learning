@@ -39,6 +39,16 @@
 <main class="main">
   <h1><span class="emoji">📦</span> Maven 构建工具</h1>
 
+  <div class="card-objective">
+    <strong>🎯 本节学习目标</strong>
+    <ul>
+      <li>理解 Maven 的核心概念：groupId、artifactId、version</li>
+      <li>掌握常用 Maven 命令：compile、test、package、install</li>
+      <li>理解依赖 scope 和依赖传递机制</li>
+      <li>了解继承 POM 和多模块构建</li>
+    </ul>
+  </div>
+
   <p>Maven 是 Java 最主流的项目构建和依赖管理工具。它使用 <code>pom.xml</code> 描述项目结构。</p>
 
   <h2>pom.xml 结构</h2>
@@ -148,6 +158,38 @@
       <li>CI 中始终以 <code>mvn clean verify</code> 替代 <code>package</code>（包含集成测试）</li>
       <li>利用 <code>.mvn/jvm.config</code> 统一 JVM 参数</li>
     </ul>
+  </div>
+
+  <div class="card-pitfall">
+    <strong>⚠️ 初学者常见错误</strong>
+    <ul>
+      <li><strong>依赖版本冲突</strong>：使用 <code>mvn dependency:tree</code> 排查，在父 POM 中用 <code>&lt;dependencyManagement&gt;</code> 统一版本</li>
+      <li><strong>本地缓存问题</strong>：依赖下载失败后删除 <code>~/.m2/repository</code> 中对应目录重新下载</li>
+      <li><strong>跳过测试导致问题</strong>：<code>-DskipTests</code> 跳过测试编译，<code>-Dmaven.test.skip=true</code> 跳过测试全流程</li>
+      <li><strong>IDE 和命令行不一致</strong>：IDE 可能使用内置 Maven，命令行使用系统 Maven，确保版本一致</li>
+      <li><strong>settings.xml 配置错误</strong>：镜像、私服配置在 <code>~/.m2/settings.xml</code>，不是 pom.xml</li>
+    </ul>
+  </div>
+
+  <div class="card-takeaway">
+    <strong>📌 本节要点</strong>
+    <ul>
+      <li>POM 是 Maven 项目描述文件，核心三要素：groupId、artifactId、version</li>
+      <li>依赖 scope 控制依赖的可见范围：compile、provided、runtime、test</li>
+      <li>父 POM 统一版本管理，多模块实现项目分模块构建</li>
+      <li>Profile 支持多环境配置切换</li>
+    </ul>
+  </div>
+
+  <div class="card-exercise">
+    <strong>✏️ 动手练习</strong>
+    <ol>
+      <li>创建一个 Maven 项目，添加 JUnit 5 依赖（scope=test），运行 <code>mvn test</code></li>
+      <li>在 pom.xml 中配置 Java 编译版本为 11</li>
+      <li>使用 <code>mvn dependency:tree</code> 查看项目依赖树</li>
+      <li>创建一个多模块 Maven 项目：common + service + web</li>
+      <li>用 Profile 配置开发/生产两套数据库连接参数</li>
+    </ol>
   </div>
 
   <div class="page-nav">

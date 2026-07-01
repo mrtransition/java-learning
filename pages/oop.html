@@ -39,6 +39,16 @@
 <main class="main">
   <h1><span class="emoji">🏗️</span> 类与对象</h1>
 
+  <div class="card-objective">
+    <strong>🎯 本节学习目标</strong>
+    <ul>
+      <li>理解面向对象三大特性：封装、继承、多态</li>
+      <li>掌握类定义、构造方法、getter/setter 的写法</li>
+      <li>理解接口和抽象类的区别及各自适用场景</li>
+      <li>掌握方法重写（Override）和方法重载（Overload）的区别</li>
+    </ul>
+  </div>
+
   <h2>定义类与创建对象</h2>
 
   <pre><span class="code-keyword">public class</span> <span class="code-type">Car</span> {
@@ -157,6 +167,53 @@ f.fly();</pre>
     <span class="code-meta">@Override</span>
     <span class="code-keyword">public double</span> area() { <span class="code-keyword">return</span> Math.PI * r * r; }
 }</pre>
+
+  <div class="card-pitfall">
+    <strong>⚠️ 初学者常见错误</strong>
+    <ul>
+      <li><strong>混淆重载与重写</strong>：重载（Overload）是同一个类中方法名相同参数不同；重写（Override）是子类重新定义父类方法</li>
+      <li><strong>继承滥用</strong>：优先使用组合（has-a）而非继承（is-a），继承增加了类之间的耦合</li>
+      <li><strong>构造方法调用可重写方法</strong>：在构造方法中调用可被子类重写的方法可能导致意料之外的行为</li>
+      <li><strong>接口与抽象类选错</strong>：需要共享状态用抽象类，只需定义契约用接口</li>
+      <li><strong>访问修饰符使用不当</strong>：字段默认用 <code>private</code>，需要子类访问用 <code>protected</code></li>
+    </ul>
+  </div>
+
+  <h2>Record 类 <span class="version-badge java14">Java 14+</span></h2>
+  <p>Record 是用于不可变数据载体的特殊类，自动生成构造方法、getter、equals、hashCode、toString：</p>
+
+  <pre><span class="code-keyword">public record</span> <span class="code-type">Point</span>(<span class="code-keyword">int</span> x, <span class="code-keyword">int</span> y) { }
+<span class="code-comment">// 等价于手动编写：private final fields + 全参构造 + getter + equals + hashCode + toString</span>
+
+<span class="code-comment">// 使用</span>
+Point p = <span class="code-keyword">new</span> Point(3, 4);
+System.out.println(p.x());     <span class="code-comment">// 3（注意：getter 没有 get 前缀）</span>
+System.out.println(p);          <span class="code-comment">// Point[x=3, y=4]</span>
+System.out.println(p.equals(<span class="code-keyword">new</span> Point(3, 4)));  <span class="code-comment">// true</span></pre>
+
+  <div class="info-box">
+    <strong>💡 何时使用 Record？</strong> 当类的主要作用是承载不可变数据时（DTO、值对象、多返回值），Record 是最佳选择。
+  </div>
+
+  <div class="card-takeaway">
+    <strong>📌 本节要点</strong>
+    <ul>
+      <li>封装：用 <code>private</code> 隐藏实现，通过 public 方法控制访问</li>
+      <li>继承：用 <code>extends</code> 复用代码，子类通过 <code>super</code> 调用父类构造方法</li>
+      <li>多态：父类引用指向子类对象，调用重写的方法时执行子类的版本</li>
+      <li>接口定义契约（can-do），抽象类提供公共基础（is-a），Record 简化不可变数据类</li>
+    </ul>
+  </div>
+
+  <div class="card-exercise">
+    <strong>✏️ 动手练习</strong>
+    <ol>
+      <li>定义一个 <code>Student</code> 类，包含 <code>name</code>、<code>age</code>、<code>score</code> 私有字段和对应的 getter/setter</li>
+      <li>定义 <code>GraduateStudent</code> 继承 <code>Student</code>，增加 <code>thesisTitle</code> 字段</li>
+      <li>定义一个 <code>Playable</code> 接口，包含 <code>void play()</code> 方法，让 <code>Piano</code> 和 <code>Guitar</code> 分别实现</li>
+      <li>用 <code>Record</code> 定义一个 <code>Book</code> 类，包含 <code>title</code> 和 <code>author</code>，测试自动生成的 toString()</li>
+    </ol>
+  </div>
 
   <div class="page-nav">
     <a href="control-flow.html">← 流程控制</a>

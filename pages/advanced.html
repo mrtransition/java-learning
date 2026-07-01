@@ -41,6 +41,16 @@
 
   <p>这三个主题贯穿框架底层：注解提供元数据，IO 处理数据读写，反射实现运行时动态操作。</p>
 
+  <div class="card-objective">
+    <strong>🎯 本节学习目标</strong>
+    <ul>
+      <li>理解注解的本质：为代码添加元数据</li>
+      <li>掌握自定义注解的创建和元注解的使用</li>
+      <li>掌握 NIO 文件读写操作</li>
+      <li>理解反射的核心 API 及注意事项</li>
+    </ul>
+  </div>
+
   <h2>一、注解（Annotation）</h2>
   <p>注解是附加在代码上的元数据，不影响程序逻辑，但可被编译器或运行时读取处理。</p>
 
@@ -176,6 +186,38 @@ Class&lt;?&gt; c3 = Class.forName(<span class="code-string">"java.lang.String"</
       <li>反射调用会绕过编译期检查，出错在运行时才暴露</li>
       <li>框架层面使用反射，业务代码尽量避免</li>
     </ul>
+  </div>
+
+  <div class="card-pitfall">
+    <strong>⚠️ 初学者常见错误</strong>
+    <ul>
+      <li><strong>反射性能开销大</strong>：反射比直接调用慢 10-100 倍，不要在热点代码中使用</li>
+      <li><strong>setAccessible(true) 破坏封装</strong>：绕过 private 访问控制，只在框架代码中使用</li>
+      <li><strong>IO 流未关闭</strong>：传统 IO 流用完后必须 close()，始终用 try-with-resources 自动关闭</li>
+      <li><strong>路径分隔符问题</strong>：Windows 用 <code>\\</code>，Linux/Mac 用 <code>/</code>，使用 <code>File.separator</code> 或 <code>Paths.get()</code></li>
+      <li><strong>忘记 @Retention(RUNTIME)</strong>：自定义注解默认 RetentionPolicy.CLASS，运行时无法通过反射读取</li>
+    </ul>
+  </div>
+
+  <div class="card-takeaway">
+    <strong>📌 本节要点</strong>
+    <ul>
+      <li>注解提供元数据，@Retention(RUNTIME) 使注解在运行时可通过反射读取</li>
+      <li>NIO 的 Files 工具类提供简洁的文件读写方法（readAllBytes、readAllLines、lines）</li>
+      <li>反射可在运行时检查类结构、调用方法、访问字段，是框架底层核心技术</li>
+      <li>反射有性能和安全方面的代价，业务代码尽量避免，框架代码合理使用</li>
+    </ul>
+  </div>
+
+  <div class="card-exercise">
+    <strong>✏️ 动手练习</strong>
+    <ol>
+      <li>自定义一个 <code>@LogExecutionTime</code> 注解，用于标记需要统计执行时间的方法</li>
+      <li>用 Files.readAllLines 读取一个文本文件，统计行数并输出</li>
+      <li>用反射获取一个类的所有方法名并打印</li>
+      <li>用反射调用一个 private 方法（使用 setAccessible(true)）</li>
+      <li>结合注解和反射：解析类上的自定义注解并打印其属性值</li>
+    </ol>
   </div>
 
   <div class="page-nav">

@@ -39,6 +39,16 @@
 <main class="main">
   <h1><span class="emoji">📋</span> 日志与配置管理</h1>
 
+  <div class="card-objective">
+    <strong>🎯 本节学习目标</strong>
+    <ul>
+      <li>掌握 SLF4J + Logback 的使用方法</li>
+      <li>理解日志级别及生产环境的最佳设置</li>
+      <li>学会多环境配置管理</li>
+      <li>了解 Actuator 生产监控端点</li>
+    </ul>
+  </div>
+
   <p>日志和配置管理是生产环境的基石。好的日志策略能让你在出现问题时快速定位根因。</p>
 
   <h2>SLF4J + Logback — 标准日志方案</h2>
@@ -225,6 +235,39 @@ management:
       <li>不要记录密码、身份证号等敏感信息</li>
       <li>设置合理的日志保留策略（按磁盘空间和时间）</li>
     </ul>
+  </div>
+
+  <div class="card-pitfall">
+    <strong>⚠️ 初学者常见错误</strong>
+    <ul>
+      <li><strong>字符串拼接日志</strong>：用占位符 <code>log.info("user={}", id)</code> 而非 <code>"user=" + id</code>，避免不必要的字符串构建</li>
+      <li><strong>日志中记录敏感信息</strong>：密码、身份证号、银行卡号等严禁记录</li>
+      <li><strong>生产环境日志级别过低</strong>：生产环境用 INFO/WARN，DEBUG 仅在排查问题时临时开启</li>
+      <li><strong>日志文件无限增长</strong>：必须配置滚动策略（按时间或大小）和保留策略</li>
+      <li><strong>选择性地记录异常</strong>：将完整异常对象传给日志门面：<code>log.error("操作失败", exception)</code></li>
+    </ul>
+  </div>
+
+  <div class="card-takeaway">
+    <strong>📌 本节要点</strong>
+    <ul>
+      <li>SLF4J 是日志门面，Logback 是 Spring Boot 默认实现</li>
+      <li>日志级别从低到高：TRACE < DEBUG < INFO < WARN < ERROR</li>
+      <li>多环境配置用 application-{profile}.yml 隔离，生产环境敏感信息用环境变量注入</li>
+      <li>Actuator 提供 /health、/metrics、/info 等生产监控端点</li>
+      <li>@ConfigurationProperties 实现类型安全的配置绑定</li>
+    </ul>
+  </div>
+
+  <div class="card-exercise">
+    <strong>✏️ 动手练习</strong>
+    <ol>
+      <li>在 Service 类中添加 SLF4J Logger，分别用 INFO、WARN、ERROR 记录不同级别的日志</li>
+      <li>配置 logback-spring.xml：控制台输出 + 按天滚动的文件输出</li>
+      <li>创建 application-dev.yml 和 application-prod.yml，配置不同的日志级别</li>
+      <li>使用 @ConfigurationProperties 绑定一组 OSS 配置</li>
+      <li>启用 Actuator，访问 /actuator/health 和 /actuator/info 端点</li>
+    </ol>
   </div>
 
   <div class="page-nav">
